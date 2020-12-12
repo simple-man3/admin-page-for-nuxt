@@ -1,8 +1,6 @@
 export default {
-  // Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
   ssr: false,
 
-  // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: 'front',
     meta: [
@@ -15,31 +13,51 @@ export default {
     ]
   },
 
-  // Global CSS (https://go.nuxtjs.dev/config-css)
   css: [
+    '~assets/css/style.css',
+    '~assets/font/Noto_Sans_JP/font.css'
   ],
 
-  // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
   ],
 
-  // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
 
-  // Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
   buildModules: [
   ],
 
-  // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
-    // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
+    '@nuxtjs/auth-next',
+    '@nuxtjs/dotenv'
   ],
 
-  // Axios module configuration (https://go.nuxtjs.dev/config-axios)
-  axios: {},
+  axios:{
+    baseURL:process.env.BASE_URL
+  },
 
-  // Build Configuration (https://go.nuxtjs.dev/config-build)
+  auth:{
+    redirect:{
+      login:'/'
+    },
+    strategies:{
+      'laravelPassport':{
+        provider:'laravel/passport',
+        url:process.env.BASE_URL,
+        endpoints:{
+          userInfo:process.env.OAUTH_USER_INFO
+        },
+        clientId:process.env.OAUTH_CLIENT_ID,
+        clientSecret:process.env.OAUTH_CLIENT_SECRET,
+        grantType:'password'
+      }
+    }
+  },
+
+  // router:{
+  //   middleware:['auth']
+  // },
+
   build: {
   }
 }
