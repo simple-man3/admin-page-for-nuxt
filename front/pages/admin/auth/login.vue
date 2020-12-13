@@ -10,7 +10,7 @@
       <div class="wrapInputField">
         <div class="inputElements">
           <input
-            v-model="arRegistration.login"
+            v-model="arDataAuth.login"
             type="text"
             required
           >
@@ -26,12 +26,12 @@
       <div class="wrapInputField">
         <div class="inputElements">
           <input
-            v-model="arRegistration.password"
+            v-model="arDataAuth.password"
             type="password"
             required
           >
           <p>
-            Пароль
+            Логин
           </p>
         </div>
         <span
@@ -40,8 +40,8 @@
         ></span>
       </div>
       <div>
-        <div @click="registration" class="registrationBtn">
-          Регистрироваться
+        <div @click="sigin" class="registrationBtn">
+          Войти
         </div>
       </div>
     </div>
@@ -50,12 +50,11 @@
 
 <script>
 export default {
-  name: "registration",
   layout:'admin/index',
   data:function ()
   {
     return{
-      arRegistration:{
+      arDataAuth:{
         login:'',
         password:'',
       },
@@ -70,27 +69,36 @@ export default {
       }
     }
   },
-  watch:{
-    arRegistration:
-      {
-        handler:function ()
-        {
-          // console.clear();
-          // console.log(this.arRegistration);
-        },
-        deep:true
-      }
-  },
   methods:{
-    async registration()
+    async sigin()
     {
+      if (this.validateData())
+      {
+        this.display.preloader=true;
+
+        this.$auth.loginWith('laravelPassport',{
+          data:{
+            username:'user',
+            password:this.arDataAuth.password
+          }
+        })
+        .then(response=>{
+          this.$router.push({
+            name:'admin'
+          });
+        })
+        .catch(error=>{
+          console.error(error);
+
+          this.display.preloader=false;
+        })
+      }
     },
 
     clearMsgErrors:function ()
     {
       for(let arItem in this.Errors)
       {
-        // console.log(arItem);
         this.Errors[arItem]='';
       }
     },
@@ -99,10 +107,18 @@ export default {
     {
       this.clearMsgErrors();
 
-      if (this.arRegistration.name=='')
-      {
-        this.Errors.name='Введите имя';
+      this.arDataAuth.login==''?this.Errors.login='Введите логин':'';
+      this.arDataAuth.password==''?this.Errors.password='Введите пароль':'';
+
+      let checkErrors=()=>{
+        for (let artItem in this.Errors){
+          if (this.Errors[artItem]!='') return false;
+        }
+
+        return true;
       }
+
+      return checkErrors();
     }
   },
 }
@@ -162,8 +178,7 @@ export default {
   pointer-events: none;
 }
 
-.formAuth input[type='text'],
-.formAuth input[type='password']{
+.formAuth input{
   width: 100%;
   height: 35px;
   border:none;

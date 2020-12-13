@@ -26,22 +26,6 @@
       <div class="wrapInputField">
         <div class="inputElements">
           <input
-            v-model="arRegistration.name"
-            type="text"
-            required
-          >
-          <p>
-            Имя
-          </p>
-        </div>
-        <span
-          v-html="Errors.email"
-          class="error"
-        ></span>
-      </div>
-      <div class="wrapInputField">
-        <div class="inputElements">
-          <input
             v-model="arRegistration.email"
             type="text"
             required
@@ -104,16 +88,14 @@ export default {
   {
     return{
       arRegistration:{
-        name:'',
-        email:'',
-        login:'',
-        password:'',
-        confirmPassword:''
+        login:'user',
+        email:'example@gmail.com',
+        password:'123456',
+        confirmPassword:'123456'
       },
 
       Errors: {
         login: '',
-        name: '',
         email: '',
         password: '',
         confirmPassword: ''
@@ -124,27 +106,35 @@ export default {
       }
     }
   },
-  watch:{
-    arRegistration:
-    {
-      handler:function ()
-      {
-        // console.clear();
-        // console.log(this.arRegistration);
-      },
-      deep:true
-    }
-  },
   methods:{
     async registration()
     {
+      if (this.validateData()) {
+        this.display.preloader=true;
+
+        this.$axios.post(process.env.BASE_URL+'/api/registration-user',{
+          login:this.arRegistration.login,
+          email:this.arRegistration.email,
+          password:this.arRegistration.password,
+          confirmPassword:this.arRegistration.confirmPassword,
+        })
+        .then(response=>{
+          this.$router.push({
+            name:'admin-auth-login'
+          });
+        })
+        .catch(error=>{
+          console.error(error);
+
+          this.display.preloader=false;
+        })
+      }
     },
 
     clearMsgErrors:function ()
     {
       for(let arItem in this.Errors)
       {
-        // console.log(arItem);
         this.Errors[arItem]='';
       }
     },
@@ -153,12 +143,54 @@ export default {
     {
       this.clearMsgErrors();
 
-      if (this.arRegistration.name=='')
-      {
-        this.Errors.name='Введите имя';
+      if (this.arRegistration.login!='') {
+        let checkLatin=()=>{
+          let regexp = /[а-яё]/i;
+
+          return regexp.test(this.arRegistration.login)? 'введите только латинские буквы':'';
+        };
+
+        this.Errors.login=checkLatin();
+      } else {
+        this.Errors.login='введите логин';
       }
+
+      if (this.arRegistration.email!='') {
+        let validateEmail=()=>{
+          const regularExpresion=/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+          return !regularExpresion.test(this.arRegistration.email)?'почта карочъ не валидна':'';
+        }
+
+        this.Errors.email=validateEmail();
+      } else {
+        this.Errors.email='введите почту';
+      }
+
+      if (this.arRegistration.password!='') {
+        let checkLength=()=>this.arRegistration.password.length<6? 'минимальная длина пароль 6 букв':'';
+
+        this.Errors.password=checkLength();
+      } else {
+        this.Errors.password='введите пароль';
+      }
+
+      if (this.arRegistration.confirmPassword!='') {
+        this.Errors.confirmPassword=this.arRegistration.password!=this.arRegistration.confirmPassword? 'пароли не совпадают':'';
+      } else {
+        this.Errors.confirmPassword='повторите пароль';
+      }
+
+      let checkErrors=()=>{
+        for (let arItem in this.Errors) {
+          if (this.Errors[arItem]!='') return false;
+        }
+        return true;
+      }
+
+      return checkErrors();
     }
-  },
+  }
 }
 </script>
 
@@ -216,8 +248,7 @@ export default {
   pointer-events: none;
 }
 
-.formAuth input[type='text'],
-.formAuth input[type='password']{
+.formAuth input{
   width: 100%;
   height: 35px;
   border:none;

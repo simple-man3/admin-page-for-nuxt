@@ -1,12 +1,14 @@
 <template>
+  <div>
     <NavbarAdminPage />
+  </div>
 </template>
 
 <script>
-import NavbarAdminPage from "@/components/NavbarAdminPage";
 export default {
-  components: {NavbarAdminPage},
+  auth:false,
   methods:{
+
     async sigIn ()
     {
       this.$auth.loginWith('laravelPassport',{
