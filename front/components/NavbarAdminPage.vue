@@ -1,5 +1,5 @@
 <template>
-  <div class="containerComponentTop">
+  <div v-if="displayComponent" class="containerComponentTop">
     <div class="leftPart">
       <ul>
         <li>
@@ -17,10 +17,10 @@
     <div class="rightPart">
       <ul>
         <li>
-          <p>Привет, {}</p>
+          <p>Привет, {{$auth.user.name}}</p>
         </li>
         <li>
-          <p class="logOut">
+          <p class="logOut" @click="logout">
             Выйти
           </p>
         </li>
@@ -31,7 +31,19 @@
 
 <script>
 export default {
-  name: "navbarAdminPage"
+  name: "navbarAdminPage",
+  computed:{
+    displayComponent:function ()
+    {
+      return !this.$auth.user?false:true;
+    }
+  },
+  methods:{
+    async logout ()
+    {
+      this.$auth.logout();
+    }
+  }
 }
 </script>
 

@@ -12,6 +12,16 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
 
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function findForPassport($username)
+    {
+        return $this->where('name', $username)->first();
+    }
+
     /**
      * The attributes that are mass assignable.
      *

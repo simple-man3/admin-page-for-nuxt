@@ -38,7 +38,8 @@ export default {
 
   auth:{
     redirect:{
-      login:'/'
+      login:'/admin/auth/login',
+      logout:'/'
     },
     strategies:{
       'laravelPassport':{
@@ -54,9 +55,12 @@ export default {
     }
   },
 
-  // router:{
-  //   middleware:['auth']
-  // },
+  router:{
+    middleware:[
+      'auth',
+      'checkCountUsers'
+    ]
+  },
 
   build: {
   }
