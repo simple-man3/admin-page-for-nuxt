@@ -1,5 +1,6 @@
 <template>
   <section id="adminPageSection">
+    <NavbarAdminPage />
     <Nuxt />
   </section>
 </template>

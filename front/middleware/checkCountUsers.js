@@ -1,13 +1,6 @@
 export default  async (context)=>{
-  if (context.route.name!='admin-auth-registration') {
-    return context.$axios.$post(process.env.BASE_URL + '/api/count-users')
-      .then(response => {
-        if (response.result == 0) {
-          context.redirect({
-            name: 'admin-auth-registration'
-          });
-        }
-      })
-      .catch(error => console.error(error));
+  let response = await context.$axios.$post(process.env.BASE_URL + '/api/count-users').catch(error=>console.error(error));
+  if (context.from.name=='admin-auth-registration' && response.result!=0) {
+    context.redirect('/admin');
   }
 }
