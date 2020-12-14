@@ -7,7 +7,8 @@
 <script>
 export default {
   name: "index",
-  layout:'index'
+  layout:'index',
+  auth:true
 }
 </script>
 

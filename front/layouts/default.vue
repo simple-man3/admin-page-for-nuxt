@@ -1,6 +1,6 @@
 <template>
   <div>
+    <NavbarAdminPage />
     <Nuxt />
-    default layout
   </div>
 </template>

@@ -55,8 +55,8 @@ export default {
   {
     return{
       arDataAuth:{
-        login:'',
-        password:'',
+        login:'user',
+        password:'123456',
       },
 
       Errors: {
@@ -76,20 +76,14 @@ export default {
       {
         this.display.preloader=true;
 
-        this.$auth.loginWith('laravelPassport',{
+        await this.$auth.loginWith('laravelPassport',{
           data:{
             username:'user',
             password:this.arDataAuth.password
           }
         })
-        .then(response=>{
-          this.$router.push({
-            name:'admin'
-          });
-        })
         .catch(error=>{
           console.error(error);
-
           this.display.preloader=false;
         })
       }

@@ -1,14 +1,14 @@
 <template>
   <div>
-    <NavbarAdminPage />
+    index
   </div>
 </template>
 
 <script>
 export default {
   auth:false,
-  methods:{
 
+  methods:{
     async sigIn ()
     {
       this.$auth.loginWith('laravelPassport',{
@@ -39,7 +39,7 @@ export default {
     logOut:function ()
     {
       this.$auth.logout();
-    }
+    },
   }
 }
 </script>

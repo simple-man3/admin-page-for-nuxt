@@ -84,6 +84,7 @@
 export default {
   name: "registration",
   layout:'admin/index',
+  middleware:'checkCountUsers',
   data:function ()
   {
     return{

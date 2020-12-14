@@ -1,23 +1,23 @@
 <template>
-  <div v-if="displayComponent" class="containerComponentTop">
+  <div v-if="authCheck" class="containerComponentTop">
     <div class="leftPart">
       <ul>
         <li>
-          <a href='#'>
+          <nuxt-link exact no-prefetch active-class="activeLink" :to="{name:'admin'}">
             Админ панель
-          </a>
+          </nuxt-link>
         </li>
         <li>
-          <a href="#">
+          <nuxt-link exact no-prefetch active-class="activeLink" to="/">
             Сайт
-          </a>
+          </nuxt-link>
         </li>
       </ul>
     </div>
     <div class="rightPart">
       <ul>
         <li>
-          <p>Привет, {{$auth.user.name}}</p>
+          <p>Привет, {{authUser.name}}</p>
         </li>
         <li>
           <p class="logOut" @click="logout">
@@ -30,13 +30,11 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: "navbarAdminPage",
   computed:{
-    displayComponent:function ()
-    {
-      return !this.$auth.user?false:true;
-    }
+    ...mapGetters(['authCheck','authUser']),
   },
   methods:{
     async logout ()
@@ -120,5 +118,9 @@ export default {
 
 .containerComponentTop .rightPart ul li .logOut:hover{
   color: #007bff;
+}
+
+.activeLink{
+  color: #007bff!important;
 }
 </style>
