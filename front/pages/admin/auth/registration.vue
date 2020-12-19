@@ -83,7 +83,7 @@
 <script>
 export default {
   name: "registration",
-  layout:'admin/index',
+  layout:'admin/auth',
   middleware:'checkCountUsers',
   data:function ()
   {

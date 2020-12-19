@@ -3,7 +3,7 @@
     <div class="leftPart">
       <ul>
         <li>
-          <nuxt-link exact no-prefetch active-class="activeLink" :to="{name:'admin'}">
+          <nuxt-link exact no-prefetch active-class="activeLink" :to="{name:'admin-content'}">
             Админ панель
           </nuxt-link>
         </li>

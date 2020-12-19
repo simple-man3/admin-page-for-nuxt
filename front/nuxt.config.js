@@ -40,7 +40,7 @@ export default {
     redirect:{
       login:'/admin/auth/login',
       logout:'/',
-      home:'/admin111'
+      home:'/admin/content'
     },
     strategies:{
       'laravelPassport':{
