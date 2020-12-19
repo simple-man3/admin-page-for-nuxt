@@ -50,7 +50,7 @@
 
 <script>
 export default {
-  layout:'admin/index',
+  layout:'admin/auth',
   data:function ()
   {
     return{

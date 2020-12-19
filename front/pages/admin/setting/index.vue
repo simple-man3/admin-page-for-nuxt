@@ -1,14 +1,12 @@
 <template>
   <div>
-    text
+    setting
   </div>
 </template>
 
 <script>
 export default {
-  name: "index",
-  layout:'index',
-  auth:true
+name: "index"
 }
 </script>
 
