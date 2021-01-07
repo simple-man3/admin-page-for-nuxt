@@ -1,36 +1,41 @@
 <template>
   <ul class="wrapComponentMenu">
     <li v-for="(arItem,index) in arMenu" :key="index">
-      <div class="wrapBtnSideMenu" @click="displayHiddenMenu(index)">
+      <div
+        class="wrapBtnSideMenu"
+        @click="displayHiddenMenu(index)"
+        @mouseover="activeHoverImg(index,arItem,'beforeImg')"
+        @mouseleave="disableHoverImg(index,arItem,'beforeImg')"
+      >
         <img
           v-if="arItem.beforeImgUrl!=null"
           class="imgBefore"
           :src="arItem.beforeImgUrl"
-          :style="{
-            height: arItem.sizeImg.height,
-            width: arItem.sizeImg.width
-          }"
+          :style="setCssImg('beforeImg',arItem)"
           alt="img"
+          ref="beforeImg"
         >
         <img
-          v-if="arItem.afterImgUrl!=null"
+          v-if="arItem.afterImgUrl!=null && Object.keys(arItem.children).length"
           class="imgAfter"
+          :class="{openedImg:hiddenMenu[index].clicked}"
           :src="arItem.afterImgUrl"
-          :style="{
-            height: arItem.sizeImg.height,
-            width: arItem.sizeImg.width
-          }"
+          :style="setCssImg('afterImg',arItem)"
           alt="img"
+          ref="afterImg"
         >
         <p
-          v-if="arItem.route==null && arItem.nameRoute==null"
-          :class="{selected:hiddenMenu.clicked && arItem.children.length}"
+          v-if="(arItem.route==null && arItem.nameRoute==null) || arItem.children.length"
+          :class="{
+            selected:hiddenMenu[index].clicked,
+          }"
+          :style="{color:hiddenMenu.clicked? arItem.styleTitle.active.color:''}"
         >
           {{arItem.name}}
         </p>
         <nuxt-link
           v-else
-          exact no-prefetch active-class="selected"
+          exact no-prefetch
           :to="arItem.route==null? {name:arItem.nameRoute}:arItem.route"
         >
           {{arItem.name}}
@@ -38,7 +43,7 @@
       </div>
       <div
         class="wrapSubMenu"
-        v-if="arItem.children && arItem.children.length"
+        v-if="arItem.children && Object.keys(arItem.children).length"
         :style="{height:hiddenMenu[index].height+'px'}"
       >
         <div class="wrapInsideSubMenu" ref="blockCustom">
@@ -80,11 +85,23 @@ export default {
       isChild:this.isChildProp,
 
       hiddenMenu:[],
-      display:{
-        submenu:false
-      },
 
-      parentId:this.parentIdProp
+      parentId:this.parentIdProp,
+
+      hoverCss:[
+        {
+          beforeImg:{
+            transition:null,
+            imgUrl:null,
+            rotate:null,
+          },
+          afterImg:{
+            transition:null,
+            imgUrl:null,
+            rotate:null,
+          },
+        },
+      ],
     }
   },
   created:function(){
@@ -100,8 +117,6 @@ export default {
       if (!this.hiddenMenu[index].clicked){
         //Если у нажатого элемента есть дочерние элементы
         if (this.arMenu[index].children.length) {
-          // debugger
-          this.arMenu;
           this.hiddenMenu[index].height=this.$refs['blockCustom'][index].clientHeight;
           this.hiddenMenu[index].clicked=true;
 
@@ -132,11 +147,15 @@ export default {
      */
     displayParent:function (data)
     {
-      this.hiddenMenu[data.parentId].height=this.$refs['blockCustom'][data.parentId].clientHeight+data.height;
-
+      if (data.height!=null) {
+        this.hiddenMenu[data.parentId].height = this.$refs['blockCustom'][data.parentId].clientHeight + data.height;
+      } else {
+        this.hiddenMenu[data.parentId].height=this.$refs['blockCustom'][data.parentId].clientHeight;
+        this.hiddenMenu[data.parentId].clicked=true;
+      }
       this.$emit('displayParent',{
         parentId:this.parentId,
-        height:data.height
+        height:data.height!=null?data.height:null
       })
     },
 
@@ -161,6 +180,46 @@ export default {
           clicked:false
         })
       }
+    },
+
+    /**
+     * Устанавливает свойство в тег img
+     */
+    setCssImg:function (beforeOrAfter,arResult)
+    {
+      return {
+        width:arResult.styleImg[beforeOrAfter].width,
+        height:arResult.styleImg[beforeOrAfter].height,
+        transition:arResult.styleImg[beforeOrAfter].transition!=null && arResult.styleImg[beforeOrAfter].transition? arResult.styleImg[beforeOrAfter].transition:'',
+      };
+    },
+
+    /**
+     *
+     * @param index - индекс ключа объекта
+     * @param arResult - массив
+     * @param beforeOrAfterImg
+     */
+    activeHoverImg:function (index, arResult, beforeOrAfterImg)
+    {
+      // Если вообще есть необходимые ключи и они не пустые
+      if (
+        (arResult.styleImg.beforeImg.hover && Object.keys(arResult.styleImg.beforeImg.hover).length) ||
+        (arResult.styleImg.afterImg.hover && Object.keys(arResult.styleImg.afterImg.hover).length)
+      ) {
+        if (arResult.styleImg[beforeOrAfterImg].hover.imgUrl!=null) {
+          this.$refs[beforeOrAfterImg][index].src=arResult.styleImg[beforeOrAfterImg].hover.imgUrl
+        }
+        if (arResult.styleImg[beforeOrAfterImg].hover.rotate!=null) {
+          this.$refs[beforeOrAfterImg][index].style.transform=`rotate(${arResult.styleImg[beforeOrAfterImg].hover.rotate}deg)`;
+        }
+      }
+    },
+
+    disableHoverImg:function (index, arResult, beforeOrAfterImg)
+    {
+      this.$refs[beforeOrAfterImg][index].src=beforeOrAfterImg=='beforeImg'? arResult.beforeImgUrl:arResult.afterImgUrl;
+      this.$refs[beforeOrAfterImg][index].style.transform='';
     },
   }
 }
@@ -196,15 +255,12 @@ export default {
 .wrapComponentMenu a{
   color: #959595;
   transition: .3s;
+  text-decoration: none;
 }
 
-.wrapComponentMenu .wrapBtnSideMenu:hover{
-  color: white;
-}
-
-.selected{
-  color: white!important;
-}
+/*.selected{*/
+/*  color: white!important;*/
+/*}*/
 
 .wrapComponentMenu .wrapInsideSubMenu .wrapComponentMenu{
   margin-left: 20px;
@@ -216,17 +272,6 @@ export default {
   margin: 5px 0;
 }
 
-.wrapComponentMenu .wrapBtnSideMenu .imgBefore{
-  position: absolute;
-  top: 5px;
-}
-
-.wrapComponentMenu .wrapBtnSideMenu .imgAfter{
-  position: absolute;
-  top: 5px;
-  right: 5vw;
-}
-
 .wrapComponentMenu a{
   margin-left: 30px;
 }
@@ -236,6 +281,22 @@ export default {
 .wrapComponentMenu .wrapComponentMenu .wrapBtnSideMenu:hover a,
 .wrapComponentMenu .wrapComponentMenu .wrapBtnSideMenu:hover p{
   color: white;
+}
+
+.wrapComponentMenu .wrapBtnSideMenu .imgBefore{
+  position: absolute;
+  top: 6px;
+}
+
+.wrapComponentMenu .wrapBtnSideMenu .imgAfter{
+  position: absolute;
+  right: 5px;
+  top: 6px;
+  transition: .3s;
+}
+
+.openedImg{
+  transform: rotate(-180deg);
 }
 </style>
 

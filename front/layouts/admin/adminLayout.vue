@@ -1,6 +1,6 @@
 <template>
   <section>
-<!--    <NavbarAdminPage />-->
+    <LazyNavbarAdminPage />
     <div id="adminPageSection">
       <div class="adminSideBar">
         <DeepMenuSidebar
@@ -15,18 +15,152 @@
 </template>
 
 <script>
-import DeepMenuSidebar from '~/components/menu/DeepMenuSidebar'
-// import NavbarAdminPage from '~/components/menu/DeepMenuSidebar'
 export default {
-  components:{
-    DeepMenuSidebar,
-  },
   data:function ()
   {
     return{
-      arMenuLinks:[],
+      arMenuLinks:[
+        {
+          name:'Главное',
+          route:null,
+          nameRoute:null,
+          beforeImgUrl:'/img/admin/content.svg',
+          afterImgUrl:'/img/admin/sort-down.svg',
+          styleImg:{
+            beforeImg:{
+              width:'15px',
+              height:'15px',
+              hover:{
+                imgUrl:'/img/admin/content-active.svg',
+                rotate:null,
+              }
+            },
+            afterImg:{
+              width:'15px',
+              height:'15px',
+              transition:null,
+              hover:{
+                imgUrl:'/img/admin/content-active.svg',
+                rotate:50,
+              }
+            },
+          },
+          children:[]
+        },
+        {
+          name:'Контент',
+          route:null,
+          nameRoute:null,
+          beforeImgUrl:'/img/admin/content.svg',
+          afterImgUrl:'/img/admin/sort-down.svg',
+          styleImg:{
+            beforeImg:{
+              width:'15px',
+              height:'15px',
+              hover:{
+                imgUrl:'/img/admin/content-active.svg',
+                rotate:null,
+              }
+            },
+            afterImg:{
+              width:'15px',
+              height:'15px',
+              transition:null,
+              hover:{
+                imgUrl:'/img/admin/content-active.svg',
+                rotate:50,
+              }
+            },
+          },
+          children:[]
+        },
+        {
+          name:'Инфоблоки',
+          route:null,
+          nameRoute:'admin-infoBlock',
+          beforeImgUrl:'/img/admin/content.svg',
+          afterImgUrl:'/img/admin/sort-down.svg',
+          styleImg:{
+            beforeImg:{
+              width:'15px',
+              height:'15px',
+              transition:null,
+              hover:{
+                imgUrl:'/img/admin/content-active.svg',
+                rotate:null,
+              }
+            },
+            afterImg:{
+              width:'15px',
+              height:'15px',
+              transition:null,
+              hover:{
+                imgUrl:'/img/admin/content-active.svg',
+                rotate:null,
+              }
+            },
+          },
+          children:[]
+        },
+        {
+          name:'Политика безопасности',
+          route:null,
+          nameRoute:null,
+          beforeImgUrl:'/img/admin/content.svg',
+          afterImgUrl:'/img/admin/sort-down.svg',
+          styleImg:{
+            beforeImg:{
+              width:'15px',
+              height:'15px',
+              transition:null,
+              hover:{
+                imgUrl:'/img/admin/content-active.svg',
+                rotate:null,
+              }
+            },
+            afterImg:{
+              width:'15px',
+              height:'15px',
+              transition:null,
+              hover:{
+                imgUrl:'/img/admin/content-active.svg',
+                rotate:null,
+              }
+            },
+          },
+          children:[]
+        },
+        {
+          name:'Настроки',
+          route:null,
+          nameRoute:null,
+          beforeImgUrl:'/img/admin/content.svg',
+          afterImgUrl:'/img/admin/sort-down.svg',
+          styleImg:{
+            beforeImg:{
+              width:'15px',
+              height:'15px',
+              transition:'1s',
+              hover:{
+                imgUrl:'/img/admin/content-active.svg',
+                rotate:null,
+              }
+            },
+            afterImg:{
+              width:'15px',
+              height:'15px',
+              transition:null,
+              hover:{
+                imgUrl:'/img/admin/content-active.svg',
+                rotate:40,
+              }
+            },
+          },
+          children:[]
+        }
+      ],
     }
-  },
+  }
 }
 </script>
 
@@ -46,6 +180,10 @@ export default {
 
 #adminPageSection .adminContent{
   width: calc(100% - 300px);
-  padding: 10px;
+  margin: 15px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 0 34px -12px rgba(0,0,0,0.75);
 }
 </style>

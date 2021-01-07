@@ -32,7 +32,7 @@
 <script>
 import { mapGetters } from 'vuex'
 export default {
-  name: "navbarAdminPage",
+  name: "NavbarAdminPage",
   computed:{
     ...mapGetters(['authCheck','authUser']),
   },
