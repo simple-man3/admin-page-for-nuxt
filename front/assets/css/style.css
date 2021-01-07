@@ -14,3 +14,7 @@ body{
 input{
   outline: none;
 }
+
+.activeLinkComponent{
+  color: white!important;
+}

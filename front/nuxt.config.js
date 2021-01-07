@@ -60,6 +60,7 @@ export default {
     middleware:[
       'auth',
     ],
+    linkExactActiveClass: 'activeLinkComponent'
   },
 
   build: {
