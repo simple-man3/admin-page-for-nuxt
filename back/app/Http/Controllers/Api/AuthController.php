@@ -10,14 +10,13 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function getInfoAuthUSer()
+    public function getInfoAuthUser()
     {
         return auth()->user();
     }
 
     public function getCountUsers(Request $request)
     {
-//        sleep(10);
         return response([
             'result'=>User::count()
         ],200);

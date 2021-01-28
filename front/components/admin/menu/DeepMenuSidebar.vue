@@ -240,6 +240,10 @@ export default {
   cursor: pointer;
 }
 
+.wrapComponentMenu li{
+  margin-bottom: 15px;
+}
+
 .wrapComponentMenu .wrapSubMenu{
   transition: .3s;
   overflow: hidden;

@@ -84,15 +84,15 @@
 export default {
   name: "registration",
   layout:'admin/auth',
-  middleware:'checkCountUsers',
+  // middleware:'checkCountUsers',
   data:function ()
   {
     return{
       arRegistration:{
-        login:'user',
-        email:'example@gmail.com',
-        password:'123456',
-        confirmPassword:'123456'
+        login:'',
+        email:'',
+        password:'',
+        confirmPassword:''
       },
 
       Errors: {
