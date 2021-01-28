@@ -10,15 +10,16 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
-    ]
+    ],
   },
 
   css: [
+    '~assets/font/Noto_Sans_JP/font.css',
     '~assets/css/style.css',
-    '~assets/font/Noto_Sans_JP/font.css'
   ],
 
   plugins: [
+    '~/plugins/date.js'
   ],
 
   components: true,
@@ -29,7 +30,7 @@ export default {
   modules: [
     '@nuxtjs/axios',
     '@nuxtjs/auth-next',
-    '@nuxtjs/dotenv'
+    '@nuxtjs/dotenv',
   ],
 
   axios:{
@@ -60,7 +61,12 @@ export default {
     middleware:[
       'auth',
     ],
-    linkExactActiveClass: 'activeLinkComponent'
+    linkExactActiveClass: 'activeLinkComponent',
+  },
+
+  loading:{
+    color: '#3794f7',
+    height: '5px'
   },
 
   build: {
