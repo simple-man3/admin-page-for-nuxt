@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\InfoBlockController;
+use App\Http\Controllers\Api\Admin\AuthController;
+use App\Http\Controllers\Api\Admin\InfoBlockController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware'=>'auth:api'],function (){
@@ -24,8 +24,14 @@ Route::group(['middleware'=>'auth:api'],function (){
 
         // Массовые/единичные действия над инфоблоком
         Route::post('mass-action',[InfoBlockController::class,'massAction']);
+
+        // Выдаёт список типов полей
+        Route::get('get-type-fields',[InfoBlockController::class,'getAllTypeInfoBlocks']);
+
+        // Проверяет уникальность символьного кода
+        Route::post('check-unique-symbol-code',[InfoBlockController::class,'checkUniqueSymbolCode']);
     });
-    //endregion
+//endregion
 });
 
 Route::post('/count-users',[AuthController::class ,'getCountUsers']);

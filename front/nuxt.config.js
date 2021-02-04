@@ -64,10 +64,11 @@ export default {
     linkExactActiveClass: 'activeLinkComponent',
   },
 
-  loading:{
-    color: '#3794f7',
-    height: '5px'
-  },
+  // loading:{
+  //   color: '#3794f7',
+  //   height: '5px'
+  // },
+  loading:false,
 
   build: {
   },

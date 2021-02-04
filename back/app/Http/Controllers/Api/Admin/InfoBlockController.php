@@ -1,24 +1,25 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
+use App\Classes\AdditionalFieldClass;
 use App\Classes\InfoBlockClass;
 use App\Http\Controllers\Controller;
 use App\Models\InfoBlock;
+use App\Models\TypeFields;
 use App\Models\User;
 use Illuminate\Http\Request;
+use function Symfony\Component\String\s;
 
 class InfoBlockController extends Controller
 {
     public function save(Request $request)
     {
-        InfoBlock::create([
-            'name'=>$request->nameInfoBlock,
-            'active'=>true,
-            'user_id'=>auth()->id()
-        ]);
+        $idInfoBlock=InfoBlockClass::saveInfoBlock($request->input('nameInfoBlock'));
+        AdditionalFieldClass::saveAdditionalField($request->input('arAdditionalFields'), $idInfoBlock);
+
         return response([
-            'result'=>'added',
+            'result'=>$request->all(),
         ],200);
     }
 
@@ -55,6 +56,20 @@ class InfoBlockController extends Controller
     {
         return response([
             'result'=>InfoBlockClass::massAction($request->except('token'))
+        ],200);
+    }
+
+    public function getAllTypeInfoBlocks()
+    {
+        return response([
+            'result'=>TypeFields::orderBy('name','asc')->get()
+        ],200);
+    }
+
+    public function checkUniqueSymbolCode(Request $request)
+    {
+        return response([
+            'result'=>AdditionalFieldClass::checkUniqueSymbolCode($request->input('arSymbolCode'))
         ],200);
     }
 }
