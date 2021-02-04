@@ -165,6 +165,36 @@ export default {
 </script>
 
 <style>
+/*.page-enter-active {*/
+/*  animation: acrossIn .45s ease-out both;*/
+/*}*/
+
+/*.page-leave-active {*/
+/*  animation: acrossOut .65s ease-in both;*/
+/*}*/
+
+/*@keyframes acrossIn {*/
+/*  0% {*/
+/*    !*transform: translate3d(-100%, 0, 0);*!*/
+/*    !*transform: translateX(-100%);*!*/
+/*    transform: rotate(360deg);*/
+/*  }*/
+/*  100% {*/
+/*    !*transform: translate3d(0, 0, 0);*!*/
+/*    !*transform: translateX(0);*!*/
+/*    transform: rotate(0deg);*/
+/*  }*/
+/*}*/
+
+/*@keyframes acrossOut {*/
+/*  0% {*/
+/*    transform: translate3d(0, 0, 0);*/
+/*  }*/
+/*  100% {*/
+/*    transform: translate3d(0, -100%, 0);*/
+/*  }*/
+/*}*/
+
 #adminPageSection{
   min-height: 95vh;
   min-width: 100%;
@@ -179,6 +209,7 @@ export default {
 }
 
 #adminPageSection .adminContent{
+  overflow: hidden;
   width: calc(100% - 300px);
   margin: 15px;
   padding: 15px;

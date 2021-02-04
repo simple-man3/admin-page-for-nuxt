@@ -51,4 +51,15 @@ class InfoBlockClass
 
         return $arResult;
     }
+
+    static function saveInfoBlock($name)
+    {
+        $infoBlock=InfoBlock::create([
+            'name'=>$name,
+            'active'=>true,
+            'user_id'=>auth()->id(),
+        ]);
+
+        return $infoBlock;
+    }
 }

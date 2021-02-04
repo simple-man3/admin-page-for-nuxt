@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Classes\Registration;
 use App\Http\Controllers\Controller;
@@ -12,7 +12,7 @@ class AuthController extends Controller
 {
     public function getInfoAuthUser()
     {
-        return auth()->user();
+        return auth()->id();
     }
 
     public function getCountUsers(Request $request)

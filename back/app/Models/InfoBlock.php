@@ -14,6 +14,11 @@ class InfoBlock extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function  additionalField()
+    {
+        return $this->hasMany(AdditionalFields::class);
+    }
+
     protected $fillable = [
         'name',
         'active',

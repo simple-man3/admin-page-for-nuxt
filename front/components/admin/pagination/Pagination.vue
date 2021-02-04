@@ -41,9 +41,6 @@ export default {
   created:function ()
   {
     this.createPaginateObject();
-    console.clear();
-    console.log(this.pagination);
-    // console.log(this.$route);
   },
   methods:{
     createPaginateObject:function ()

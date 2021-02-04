@@ -78,7 +78,7 @@ export default {
 
         await this.$auth.loginWith('laravelPassport',{
           data:{
-            username:'user',
+            username:this.arDataAuth.login,
             password:this.arDataAuth.password
           }
         })
