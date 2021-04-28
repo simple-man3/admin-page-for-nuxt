@@ -14,16 +14,22 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+type PaginationTypeProp={
+  current_page: number,
+  last_page: number,
+  offset: number,
+  arPages:number[],
+}
+
+export default Vue.extend({
   name: "Pagination",
   props:{
     paginationProp:{
       type:Object,
-      default:function ()
-      {
-        return{}
-      }
+      default:()=>{}
     },
     offsetProp:{
       type:Number,
@@ -34,7 +40,7 @@ export default {
   data:function ()
   {
     return{
-      pagination:{},
+      pagination:{} as PaginationTypeProp,
       offset:this.offsetProp
     }
   },
@@ -68,7 +74,7 @@ export default {
       }
     },
 
-    setPages:function ()
+    setPages:function (): number[]
     {
       let arPages=[];
       let countPageForward=this.paginationProp['current_page']+this.pagination['offset'];
@@ -105,14 +111,14 @@ export default {
       return arPages;
     },
 
-    selectedPage:function (idPage)
+    selectedPage:function (idPage: number) :void
     {
       this.$emit('selectedPage',{
         result:idPage
       })
     }
   }
-}
+})
 </script>
 
 <style scoped>

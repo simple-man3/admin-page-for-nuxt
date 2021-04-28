@@ -20,8 +20,10 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+export default Vue.extend({
   name: "ModalSure",
   props:{
     displayComponentProp:{
@@ -45,20 +47,20 @@ export default {
     }
   },
   methods:{
-    sure:function ()
+    sure:function () :void
     {
       this.$emit('sure',true);
       this.display.self=false;
     },
 
-    closeComponent:function ()
+    closeComponent:function () :void
     {
       this.$emit('notSure',false);
 
       this.display.self=false;
     }
   }
-}
+})
 </script>
 
 <style scoped>

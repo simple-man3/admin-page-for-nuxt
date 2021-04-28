@@ -16,8 +16,10 @@
     "nuxt": "^2.14.12"
   },
   "devDependencies": {
+    "@nuxt/types": "^2.15.2",
+    "@nuxt/typescript-build": "^2.0.6",
     "fibers": "^5.0.0",
-    "pug": "^3.0.0",
+    "pug": "^3.0.2",
     "pug-plain-loader": "^1.1.0",
     "sass": "^1.32.5",
     "sass-loader": "^10.1.1"

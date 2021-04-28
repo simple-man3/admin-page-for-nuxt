@@ -11,7 +11,7 @@ Route::group(['middleware'=>'auth:api'],function (){
     Route::prefix('admin/info-block')->group(function (){
 
         // Создаёт инфоблок
-        Route::post('/create-info-block',[InfoBlockController::class,'save']);
+        Route::post('create-info-block',[InfoBlockController::class,'save']);
 
         // Выдает весь список инфоблоков
         Route::post('get-all-info-block',[InfoBlockController::class,'getAllInfoBlocks']);
@@ -30,8 +30,11 @@ Route::group(['middleware'=>'auth:api'],function (){
 
         // Проверяет уникальность символьного кода
         Route::post('check-unique-symbol-code',[InfoBlockController::class,'checkUniqueSymbolCode']);
+
+        // Проверяет выбранное поле
+        Route::post('delete-current-field',[InfoBlockController::class,'deleteCurrentField']);
     });
-//endregion
+    //endregion
 });
 
 Route::post('/count-users',[AuthController::class ,'getCountUsers']);

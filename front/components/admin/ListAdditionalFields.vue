@@ -1,5 +1,6 @@
 <template>
   <div class="wrapListAdditionalFields">
+    <Preloader v-if="display.preloader"/>
     <div class="wrapTitle">
       <p>
         Дополнительные поля
@@ -18,17 +19,18 @@
           <input type="text" v-model="arAdditionalFields[index].name" >
         </td>
         <td>
-          <input type="text" v-model="arAdditionalFields[index].symbolCode">
+          <input @keydown="validateInput($event,arAdditionalFields[index].symbol_code)" type="text" v-model="arAdditionalFields[index].symbol_code">
         </td>
         <td>
           <input
             type="checkbox"
             v-model="arAdditionalFields[index].needFill"
             :checked="arAdditionalFields[index].needFill"
+
           >
         </td>
         <td>
-          <select v-model="arAdditionalFields[index].typeField">
+          <select v-model="arAdditionalFields[index].type_fields_id">
             <option
               v-for="(arItem,index) in arTypeField" :key="index"
               :value="arItem.id"
@@ -38,7 +40,7 @@
           </select>
         </td>
         <td>
-          <div class="btnDelete" @click="deleteRow(index)">
+          <div class="btnDelete" @click="arItem.newAdditionalField? deleteNewRow(index):deleteExistField(arItem.id,index)">
             Удалить
           </div>
         </td>
@@ -52,9 +54,33 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "ListAdditionalFields",
+<script lang="ts">
+import Vue from 'vue'
+
+type AdditionalFields={
+  [index:number]:number
+  id?:number,
+  active:boolean,
+  name:string,
+  needFill:boolean,
+  info_block_id?:number,
+  newAdditionalField:boolean
+  symbol_code:string,
+  type_fields_id:number,
+  created_at?:Date,
+  updated_at?:Date
+}[]
+type TypeField={
+  [index:number]:number
+  id:number,
+  name:string,
+  active:boolean,
+  created_at:Date,
+  updated_at:Date
+}[]
+
+export default Vue.extend({
+  name: "list-additional-fields",
   props:{
     arAdditionalFieldsProp:{
       type:Array,
@@ -69,53 +95,123 @@ export default {
       required: false,
       default:function ()
       {
-        return []
+        return [];
       }
-    }
+    },
   },
   data:function ()
   {
     return {
-      arAdditionalFields:this.arAdditionalFieldsProp,
-      arTypeField:this.arTypeFieldProp
+      arAdditionalFields:this.arAdditionalFieldsProp as AdditionalFields,
+      arTypeField:this.arTypeFieldProp as TypeField,
+      display:{
+        preloader:false
+      }
     }
   },
+  components:{
+    Preloader:()=>import('@/components/admin/preloader/Preloader.vue')
+  },
+  created:function ()
+  {
+    console.clear();
+    console.log(this.arTypeField);
+    console.log(this.arTypeField[0]['name']);
+    this.updateArAdditionalFields();
+  },
   watch:{
-    arAdditionalFieldsProp:
+    arAdditionalFieldsProp:function ()
     {
-      handler:function ()
-      {
-        this.arAdditionalFields=this.arAdditionalFieldsProp;
-
-        this.$emit('ListAdditionalFieldsAction', {
-          result: this.arAdditionalFields
-        });
-      },
-      deep:true
+      this.arAdditionalFields=this.arAdditionalFieldsProp as AdditionalFields;
     },
 
     arTypeFieldProp:function ()
     {
-      this.arTypeField=this.arTypeFieldProp;
-    }
+      this.arTypeField=this.arTypeFieldProp as TypeField;
+    },
   },
   methods:{
-    deleteRow:function (index)
+    /**
+     * Валидация данных по следующим параметрам:
+     * - должны быть только англ. буквы
+     * - допустимый символ только "_"
+     * - допустимы целочисленные цифры
+     * - первым символом всегда должна быть буква
+     */
+    validateInput:function (e:any,data:string):void
+    {
+      let validWords:string = 'qwertyuiopasdfghjklzxcvbnm';
+      let validateSymbol:string = '_';
+      let validateNumbers:string = '1234567890';
+      let validateSpecialBtn:number[] = [37,39,8];
+
+      // Проверка, чтобы первый символ был только англ.буквой
+      if (data.length==0 && validWords.indexOf((e.key).toLowerCase())==-1) {
+        e.preventDefault();
+        return;
+      }
+
+      if (
+        validWords.indexOf((e.key).toLowerCase())==-1 &&
+        validateNumbers.indexOf((e.key).toLowerCase())==-1 &&
+        validateSpecialBtn.indexOf(e.keyCode)==-1 &&
+        e.key!=validateSymbol
+      ) {
+        e.preventDefault();
+      }
+    },
+
+    deleteNewRow:function (index:number):void
     {
       this.arAdditionalFields.splice(index,1);
     },
 
-    addRow:function ()
+    /**
+     * @param id => id дополнительного поля
+     * @param index => индекс в массиве arAdditionalFields
+     */
+    async deleteExistField(id:number,index:number)
+    {
+      this.display.preloader=true;
+
+      this.$axios.post('/api/admin/info-block/delete-current-field',{
+          'idField':id
+      })
+      .then(response=>{
+        console.log(response);
+        this.arAdditionalFields.splice(index,1);
+        this.display.preloader=false;
+      })
+      .catch(error=>console.error(error));
+    },
+
+    addRow:function () :void
     {
       this.arAdditionalFields.push({
         name:'',
-        symbolCode:'',
+        active:true,
+        symbol_code:'',
         needFill:false,
-        typeField:this.arTypeField[0]['id'],
+        type_fields_id:this.arTypeField[0]['id'],
+        newAdditionalField:true
       })
     },
+
+    /**
+     * Для существующих дополнительных полей ввода добавляется новый ключ, указывающий, что данное поле уже существует
+     */
+    updateArAdditionalFields:function ():void
+    {
+      this.arAdditionalFields.forEach((arItem,key)=>{
+        this.$set(
+          this.arAdditionalFields[key],
+          'newAdditionalField',
+          false
+        );
+      });
+    },
   }
-}
+})
 </script>
 
 <style scoped>

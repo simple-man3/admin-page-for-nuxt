@@ -12,15 +12,15 @@
 </template>
 
 <script>
-export default {
+import Vue from 'vue'
+
+export default Vue.extend({
   name: "ListErrors",
   props: {
     arErrorsProp: {
       type: Array,
       required: false,
-      default: function () {
-        return [];
-      }
+      default: ()=>[]
     }
   },
   data: function ()
@@ -29,16 +29,13 @@ export default {
       arErrors:this.arErrorsProp
     }
   },
-  created() {
-    console.log(this.arErrors);
-  },
   watch:{
     arErrorsProp:function ()
     {
       this.arErrors=this.arErrorsProp;
     }
   }
-}
+})
 </script>
 
 <style scoped>

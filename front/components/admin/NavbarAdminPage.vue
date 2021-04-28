@@ -29,9 +29,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import { mapGetters } from 'vuex'
-export default {
+
+
+export default Vue.extend({
   name: "NavbarAdminPage",
   computed:{
     ...mapGetters(['authCheck','authUser']),
@@ -42,7 +45,7 @@ export default {
       this.$auth.logout();
     }
   }
-}
+})
 </script>
 
 <style>
