@@ -19,12 +19,12 @@ export default {
   ],
 
   plugins: [
-    '~/plugins/date.js'
+    '~/plugins/date.js',
+    '~/plugins/validateAdditionalProp.js',
   ],
 
-  components: true,
-
   buildModules: [
+    '@nuxt/typescript-build'
   ],
 
   modules: [

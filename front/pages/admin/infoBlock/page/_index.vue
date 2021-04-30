@@ -10,14 +10,13 @@
         </nuxt-link>
       </div>
     </div>
-    <table>
-      <tbody>
+    <table :class="{'empty':isEmptyInfoBlock}">
       <tr>
-        <td class="wrapTitleId">
-          ID
-        </td>
         <td class="wrapCheckBox">
           <input :checked="mainCheckBox" type="checkbox" @click="checkAllCheckbox()">
+        </td>
+        <td class="wrapTitleId">
+          ID
         </td>
         <td class="wrapSingleBtn">
           btn
@@ -34,10 +33,10 @@
       </tr>
       <tr v-for="(arItem,index) in arInfoBlocks" :key="index">
         <td>
-          {{arItem.id}}
+          <input type="checkbox" :checked="arItem.checked" v-model="arItem.checked">
         </td>
         <td>
-          <input type="checkbox" :checked="arItem.checked" v-model="arItem.checked">
+          {{arItem.id}}
         </td>
         <td>
           btn
@@ -61,13 +60,17 @@
           {{arItem.created_at}}
         </td>
       </tr>
-      </tbody>
     </table>
-    <MassAction
+    <div v-if="isEmptyInfoBlock" class="wrapEmpty">
+      Пусто
+    </div>
+    <mass-action
+      v-if="!isEmptyInfoBlock"
       @dataFromRequest="dataFromRequest"
       :ar-checked-prop="getAllCheckedCheckbox"
     />
-    <Pagination
+    <pagination
+      v-if="!isEmptyInfoBlock"
       :pagination-prop="arPagination"
       :offset-prop="5"
       @selectedPage="selectedPage"
@@ -75,8 +78,23 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+import massAction from '/components/admin/MassAction.vue'
+import pagination from '/components/admin/pagination/Pagination.vue'
+
+type InfoBlocksType={
+  [index:string]:any,
+  id:number,
+  name:string,
+  active:boolean,
+  checked:boolean,
+  user_id:number,
+  created_at:boolean,
+  updated_at:boolean
+}[]
+
+export default Vue.extend({
   layout:'admin/adminLayout',
   auth:true,
   async validate({params})
@@ -96,24 +114,33 @@ export default {
   data:function ()
   {
     return{
-      arInfoBlocks:{},
+      arInfoBlocks:[] as InfoBlocksType,
       checked:false,
       mainCheckBox:false,
       arPagination:{}
     }
   },
+  components:{
+    'mass-action':massAction,
+    'pagination':pagination
+  },
   computed:{
     getAllCheckedCheckbox:function ()
     {
-      let arResult=[];
+      let arResult:number[]=[]
 
-      for (let arItem in Object.keys(this.arInfoBlocks)) {
-        if (this.arInfoBlocks[arItem]['checked']) {
-          arResult.push(this.arInfoBlocks[arItem]['id']);
+      this.arInfoBlocks.forEach((item,index)=>{
+        if (this.arInfoBlocks[index]['checked']) {
+          arResult.push(this.arInfoBlocks[index]['id']);
         }
-      }
+      })
 
       return arResult;
+    },
+
+    isEmptyInfoBlock:function ():boolean
+    {
+      return this.arInfoBlocks.length<1;
     }
   },
   created:function()
@@ -121,42 +148,59 @@ export default {
     this.updateObjectFromDb();
   },
   methods:{
+    /**
+     * Выделить все checkBox
+     */
     checkAllCheckbox:function ()
     {
       this.checked=!this.checked;
       this.mainCheckBox=!this.mainCheckBox;
 
-      for (let arItem of Object.keys(this.arInfoBlocks)) {
-        this.arInfoBlocks[arItem]['checked']=this.checked;
-      }
+      this.arInfoBlocks.forEach((item,key)=>{
+        this.arInfoBlocks[key]['checked']=this.checked;
+      })
     },
 
+    /**
+     * Очистить все checkBox
+     */
     clearAllCheckbox:function ()
     {
       this.checked=this.mainCheckBox=false;
 
-      for (let arItem of Object.keys(this.arInfoBlocks)) {
-        this.arInfoBlocks[arItem]['checked']=this.checked;
-      }
+      this.arInfoBlocks.forEach((item,key)=>{
+        this.arInfoBlocks[key]['checked']=this.checked;
+      })
     },
 
+    /**
+     * Добавляет новый ключ 'checked'
+     */
     updateObjectFromDb:function ()
     {
-      for (let arItem of Object.keys(this.arInfoBlocks)) {
-        this.$set(this.arInfoBlocks[arItem],'checked',false);
-      }
+      this.arInfoBlocks.forEach((item,key)=>{
+        this.$set(this.arInfoBlocks[key],'checked',false);
+      })
     },
 
-    dataFromRequest:function (data)
+    /**
+     * Callback из компонента MassAction
+     * @param data => {arSelectedID:number[], action:string}
+     */
+    dataFromRequest:function (data:{arSelectedID:number[], action:string})
     {
       this.clearAllCheckbox();
       this.updateDateInfoBlocks(data);
     },
 
-    updateDateInfoBlocks:function (data)
+    /**
+     * Изменения данные таблицы, после массового действия
+     * @param data => {arSelectedID:number[], action:string}
+     */
+    updateDateInfoBlocks:function (data:{arSelectedID:number[], action:string})
     {
-      for (let [index,arItem] of Object.entries(data.arSelectedID)) {
-        for (let [key,item] of Object.entries(this.arInfoBlocks)) {
+      data.arSelectedID.forEach((arItem,index)=>{
+        this.arInfoBlocks.forEach((item,key)=>{
           if (arItem==item.id) {
             if (data.action=='active') {
               this.arInfoBlocks[key].active=true;
@@ -168,21 +212,21 @@ export default {
               this.$delete(this.arInfoBlocks,key);
             }
           }
-        }
-      }
+        })
+      })
     },
 
-    selectedPage:function (data)
+    selectedPage:function (data:{result:number}) :void
     {
       this.$router.push({
         name:'admin-infoBlock-page',
         params:{
-          index:data.result
+          index:data.result.toString()
         }
       });
     }
   }
-}
+})
 </script>
 
 <style scoped>
@@ -253,5 +297,18 @@ export default {
 
 .wrapInfoBlocks .wrapPagination{
   margin-top: 20px;
+}
+
+.wrapEmpty{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ececec;
+  height: 50px;
+  margin-bottom: 15px;
+}
+
+.empty{
+  margin-bottom: 0!important;
 }
 </style>

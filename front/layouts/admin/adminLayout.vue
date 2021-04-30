@@ -1,6 +1,6 @@
 <template>
   <section>
-    <LazyNavbarAdminPage />
+    <NavbarAdminPage />
     <div id="adminPageSection">
       <div class="adminSideBar">
         <DeepMenuSidebar
@@ -14,8 +14,40 @@
   </section>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+import auth from '@nuxtjs/auth-next'
+
+type MenuLinksInterface={
+  name:string, // название пункта меню
+  route:string | null, // url пункта меню
+  nameRoute:string | null, // название router
+  beforeImgUrl:string | null, // путь до картикни для отображени перед названием меню
+  afterImgUrl:string | null, // путь до картикни для отображени отображеня картинки после названием меню
+  styleImg?:{ // различные стили для картинок
+    beforeImg?:{ // стили для картинки отображаеюся перед название меню
+      width:string | null, // ширина картинки. Пример: 25px
+      height:string | null,// высота картинки. Пример: 25px
+      transition:string | null, // время анимации. Пример: 1s
+      hover?:{ // свойство при наведении на картинку
+        imgUrl:string | null, // путь до новой картнки
+        rotate:number | null, // угол поворота картинки. Пример: 25
+      }
+    },
+    afterImg?:{ // стили для картинки отображаеюся перед название меню
+      width:string | null, // ширина картинки. Пример: 25px
+      height:string | null, // высота картинки. Пример: 25px
+      transition:string | null, // время анимации. Пример: 1s
+      hover:{ // свойство при наведении на картинку
+        imgUrl:string | null, // путь до новой картнки
+        rotate:number | null, // угол поворота картинки. Пример: 25
+      }
+    },
+  },
+  children?:MenuLinksInterface[] // меню уходящее в глубину
+}[]
+
+export default Vue.extend({
   data:function ()
   {
     return{
@@ -160,8 +192,12 @@ export default {
         }
       ],
     }
+  },
+  components:{
+    DeepMenuSidebar:()=>import('@/components/admin/menu/DeepMenuSidebar.vue'),
+    NavbarAdminPage:()=>import('@/components/admin/NavbarAdminPage.vue')
   }
-}
+})
 </script>
 
 <style>

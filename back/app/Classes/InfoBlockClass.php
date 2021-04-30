@@ -38,7 +38,10 @@ class InfoBlockClass
 
     static function deleteInfoBlocks($arId)
     {
-        InfoBlock::destroy($arId);
+        foreach ($arId as $item) {
+            InfoBlock::find($item)->additionalField()->delete();
+            InfoBlock::destroy($item);
+        }
     }
 
     static function getSelectedInfoBlocks($arId)

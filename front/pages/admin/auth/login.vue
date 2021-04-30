@@ -40,7 +40,7 @@
         ></span>
       </div>
       <div>
-        <div @click="sigin" class="registrationBtn">
+        <div @click="sigIn" class="registrationBtn">
           Войти
         </div>
       </div>
@@ -48,8 +48,22 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+type ErrorsType={
+  [index:string]:any,
+  login: string,
+  password: string
+}
+
+type DataAuth={
+  [index:string]:any,
+  login: string,
+  password: string
+}
+
+export default Vue.extend({
   layout:'admin/auth',
   data:function ()
   {
@@ -57,26 +71,29 @@ export default {
       arDataAuth:{
         login:'user',
         password:'123456',
-      },
+      } as DataAuth,
 
       Errors: {
         login: '',
         password: '',
-      },
+      } as ErrorsType,
 
       display:{
         preloader:false
       }
     }
   },
+  components:{
+    preloader:()=>import('@/components/admin/preloader/Preloader.vue')
+  },
   methods:{
-    async sigin()
+    async sigIn()
     {
       if (this.validateData())
       {
         this.display.preloader=true;
 
-        await this.$auth.loginWith('laravelPassport',{
+        this.$auth.loginWith('laravelPassport',{
           data:{
             username:this.arDataAuth.login,
             password:this.arDataAuth.password
@@ -91,23 +108,22 @@ export default {
 
     clearMsgErrors:function ()
     {
-      for(let arItem in this.Errors)
-      {
-        this.Errors[arItem]='';
-      }
+      Object.keys(this.Errors).forEach(key=>{
+        this.Errors[key]='';
+      })
     },
 
-    validateData:function ()
+    validateData:function () :boolean
     {
       this.clearMsgErrors();
 
-      this.arDataAuth.login==''?this.Errors.login='Введите логин':'';
-      this.arDataAuth.password==''?this.Errors.password='Введите пароль':'';
+      this.arDataAuth.login==''? this.Errors.login='Введите логин':'';
+      this.arDataAuth.password==''? this.Errors.password='Введите пароль':'';
 
-      let checkErrors=()=>{
-        for (let artItem in this.Errors){
-          if (this.Errors[artItem]!='') return false;
-        }
+      let checkErrors=():boolean=>{
+        Object.keys(this.Errors).forEach(key=>{
+          if (this.Errors[key]!='') return false;
+        })
 
         return true;
       }
@@ -115,7 +131,7 @@ export default {
       return checkErrors();
     }
   },
-}
+})
 </script>
 
 <style>

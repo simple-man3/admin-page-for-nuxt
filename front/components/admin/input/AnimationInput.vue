@@ -12,27 +12,31 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+export default Vue.extend({
   name: "AnimationInput",
   props:{
     titleProp:{
+      type:String,
       required:true,
     },
     // Текст сообщения ошибки, если не заполнили
     errorMessageProp:{
-      required:false,
       type:String,
+      required:false,
       default:''
     },
     // Отображает ошибку заполнения
     displayErrorProp:{
-      required: false,
       type:Boolean,
+      required: false,
       default: false
     },
     // Контент внутри поля ввода
     inputDataProp:{
+      type:String,
       required:false,
       default:''
     }
@@ -49,33 +53,33 @@ export default {
     }
   },
   watch: {
-    inputValue: function () {
+    inputValue: function () :void {
       this.$emit('getInputValue', {
         result: this.inputValue,
       });
     },
 
-    errorMessageProp: function ()
+    errorMessageProp: function () : void
     {
       this.error.errorMessage=this.errorMessageProp;
     },
 
-    titleProp:function ()
+    titleProp:function () : void
     {
       this.title=this.titleProp;
     },
 
-    displayErrorProp:function ()
+    displayErrorProp:function () : void
     {
       this.error.displayError=this.displayErrorProp;
     },
 
-    inputDataProp:function ()
+    inputDataProp:function () : void
     {
       this.inputValue=this.inputDataProp;
     }
   }
-}
+})
 </script>
 
 <style scoped>
@@ -94,7 +98,7 @@ export default {
   height: 35px;
   border:none;
   border-bottom: 1px solid #ced4da;
-  font-size: 20px;
+  font-size: 16px;
 }
 
 .wrapInputField .inputElements{

@@ -26,11 +26,17 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+type CheckedType=number[]
+
+export default Vue.extend({
   name: "MassAction",
   props:{
-    arCheckedProp:{}
+    arCheckedProp:{
+      type:Array as ()=>CheckedType,
+    }
   },
   data:function ()
   {
@@ -44,6 +50,10 @@ export default {
       arChecked:this.arCheckedProp
     }
   },
+  components:{
+    Preloader:()=>import('@/components/admin/preloader/Preloader.vue'),
+    ModalSure:()=>import('@/components/admin/ModalSure.vue')
+  },
   watch:{
     arCheckedProp:function ()
     {
@@ -56,7 +66,7 @@ export default {
     },
   },
   methods:{
-    doAction:function ()
+    doAction:function () :void
     {
       this.display.sureModal = true;
     },
@@ -83,13 +93,13 @@ export default {
       }
     },
 
-    notSure:function (data)
+    notSure:function (data: boolean) :void
     {
       this.display.btn=this.display.sureModal=data;
       this.selectedAction='';
     }
   }
-}
+})
 </script>
 
 <style scoped>

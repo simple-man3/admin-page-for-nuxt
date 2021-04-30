@@ -14,7 +14,7 @@ class InfoBlock extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function  additionalField()
+    public function additionalField()
     {
         return $this->hasMany(AdditionalFields::class);
     }
