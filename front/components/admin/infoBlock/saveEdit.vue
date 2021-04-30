@@ -171,7 +171,7 @@ export default Vue.extend({
     {
       // Получает список дополнительных полей из компонента
       this.arAdditionalFields=(this.$refs['ListAdditionalFields'] as any)['arAdditionalFields'];
-      // this.display.preloader=true;
+      this.display.preloader=true;
       this.display.listErrors=false;
 
       this.validate().then((result:boolean)=>{

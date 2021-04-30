@@ -14,6 +14,11 @@ class AdditionalFields extends Model
         return $this->belongsTo(TypeFields::class);
     }
 
+    public function infoBlock()
+    {
+        return $this->belongsTo(InfoBlock::class);
+    }
+
     protected $fillable=[
         'name',
         'active',

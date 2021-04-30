@@ -10,7 +10,7 @@
         </nuxt-link>
       </div>
     </div>
-    <table>
+    <table :class="{'empty':isEmptyInfoBlock}">
       <tr>
         <td class="wrapCheckBox">
           <input :checked="mainCheckBox" type="checkbox" @click="checkAllCheckbox()">
@@ -61,11 +61,16 @@
         </td>
       </tr>
     </table>
-    <MassAction
+    <div v-if="isEmptyInfoBlock" class="wrapEmpty">
+      Пусто
+    </div>
+    <mass-action
+      v-if="!isEmptyInfoBlock"
       @dataFromRequest="dataFromRequest"
       :ar-checked-prop="getAllCheckedCheckbox"
     />
-    <Pagination
+    <pagination
+      v-if="!isEmptyInfoBlock"
       :pagination-prop="arPagination"
       :offset-prop="5"
       @selectedPage="selectedPage"
@@ -75,6 +80,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import massAction from '/components/admin/MassAction.vue'
+import pagination from '/components/admin/pagination/Pagination.vue'
 
 type InfoBlocksType={
   [index:string]:any,
@@ -114,8 +121,8 @@ export default Vue.extend({
     }
   },
   components:{
-    MassAction:()=>import('@/components/admin/MassAction.vue'),
-    Pagination:()=>import('@/components/admin/pagination/Pagination.vue')
+    'mass-action':massAction,
+    'pagination':pagination
   },
   computed:{
     getAllCheckedCheckbox:function ()
@@ -129,6 +136,11 @@ export default Vue.extend({
       })
 
       return arResult;
+    },
+
+    isEmptyInfoBlock:function ():boolean
+    {
+      return this.arInfoBlocks.length<1;
     }
   },
   created:function()
@@ -285,5 +297,18 @@ export default Vue.extend({
 
 .wrapInfoBlocks .wrapPagination{
   margin-top: 20px;
+}
+
+.wrapEmpty{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ececec;
+  height: 50px;
+  margin-bottom: 15px;
+}
+
+.empty{
+  margin-bottom: 0!important;
 }
 </style>
