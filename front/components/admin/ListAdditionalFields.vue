@@ -64,7 +64,8 @@ type AdditionalFields={
   name:string,
   needFill:boolean,
   info_block_id?:number,
-  newAdditionalField:boolean
+  newAdditionalField:boolean,
+  old_symbol_code?:string,
   symbol_code:string,
   type_fields_id:number,
   created_at?:Date,
@@ -112,13 +113,6 @@ export default Vue.extend({
   components:{
     Preloader:()=>import('@/components/admin/preloader/Preloader.vue')
   },
-  created:function ()
-  {
-    console.clear();
-    console.log(this.arTypeField);
-    console.log(this.arTypeField[0]['name']);
-    this.updateArAdditionalFields();
-  },
   watch:{
     arAdditionalFieldsProp:function ()
     {
@@ -129,6 +123,10 @@ export default Vue.extend({
     {
       this.arTypeField=this.arTypeFieldProp as TypeField;
     },
+  },
+  created:function ()
+  {
+    this.updateArAdditionalFields();
   },
   methods:{
     /**
@@ -178,7 +176,6 @@ export default Vue.extend({
           'idField':id
       })
       .then(response=>{
-        console.log(response);
         this.arAdditionalFields.splice(index,1);
         this.display.preloader=false;
       })
@@ -207,6 +204,11 @@ export default Vue.extend({
           this.arAdditionalFields[key],
           'newAdditionalField',
           false
+        );
+        this.$set(
+          this.arAdditionalFields[key],
+          'old_symbol_code',
+          arItem['symbol_code']
         );
       });
     },

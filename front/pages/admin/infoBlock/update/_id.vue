@@ -101,9 +101,6 @@ export default Vue.extend({
       idInfoBlock:params.id
     }).catch(error=>console.error(error));
 
-    // console.clear();
-    // console.log(data['result']);
-
     if (data.result==null)
       throw({ statusCode: 404, message: 'This page could not be found'})
     else

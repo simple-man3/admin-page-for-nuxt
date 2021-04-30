@@ -16,19 +16,29 @@ class InfoBlockController extends Controller
 {
     /**
      * @param Request $request => в запросе должно быть:
-     * arAdditionalFields => string
-     * nameInfoBlock => [{...}, ...]
+     * name => string
+     * arAdditionalFields => указывается список существующих и новых дополнительных полей. Имеет вид:
+     * [
+     *      {
+     *          name:string, => название
+     *          active:boolean, => активность
+     *          needFill:boolean, => обязательно заполнить пользователю
+     *          symbol_code:string, => символьный код
+     *          type_fields_id:number, => ID типа поля
+     *      },
+     *      ...
+     * ]
      */
     public function save(Request $request)
     {
-        if (is_null($request->input('arAdditionalFields')) || is_null($request->input('nameInfoBlock'))) {
+        if (is_null($request->input('arAdditionalFields')) || is_null($request->input('name'))) {
             return response([
                 'code' => 400,
                 'error' => [
                     'message' => 'Недостаточно данных'
                 ]
             ], 400);
-        } elseif (gettype($request->input('nameInfoBlock'))!='string' || gettype($request->input('arAdditionalFields'))!='array') {
+        } elseif (gettype($request->input('name'))!='string' || gettype($request->input('arAdditionalFields'))!='array') {
             return response([
                 'code' => 400,
                 'error' => [
@@ -36,8 +46,8 @@ class InfoBlockController extends Controller
                 ]
             ], 400);
         } else {
-            $idInfoBlock=InfoBlockClass::saveInfoBlock($request->input('nameInfoBlock'));
-            AdditionalFieldClass::saveAdditionalField($request->input('arAdditionalFields'), $idInfoBlock);
+            $idInfoBlock=InfoBlockClass::saveInfoBlock($request->input('name'));
+            AdditionalFieldClass::saveAdditionalField($request->input('arAdditionalFields'), $idInfoBlock['id']);
         }
 
         return response([
@@ -80,19 +90,30 @@ class InfoBlockController extends Controller
      * id => идентификатор инфоблока,
      * name => название инфоблока
      * active => активность инфоблока
-     * additionalFieldsExist => необязательный параметр, где указывается список существующих дополнительных полей. Имеет вид:
+     * arAdditionalFields => указывается список существующих и новых дополнительных полей. Имеет вид:
      * [
-     *  {
-     *      id:number, => ID
-     *      name:string, => название
-     *      active:boolean, => активность
-     *      needFill:boolean, => обязательно заполнить пользователю
-     *      symbol_code:string, => символьный код
-     *      type_fields_id:number, => ID типа поля
-     *  }
-     *  ...
+     *      newFields=>[
+     *          {
+     *              id:number, => ID
+     *              name:string, => название
+     *              active:boolean, => активность
+     *              needFill:boolean, => обязательно заполнить пользователю
+     *              symbol_code:string, => символьный код
+     *              type_fields_id:number, => ID типа поля
+     *          },
+     *          ...
+     *      ],
+     *      newFields=>[
+     *          {
+     *              name:string, => название
+     *              active:boolean, => активность
+     *              needFill:boolean, => обязательно заполнить пользователю
+     *              symbol_code:string, => символьный код
+     *              type_fields_id:number, => ID типа поля
+     *          },
+     *          ...
+     *      ]
      * ]
-     * additionalFieldsExist => необязательный параметр, указывается список новых дополнительных полей. Структура такая же, как и у additionalFieldsExist, за исключением id, который не нужно указывать
      */
     public function updateInfoBlock(Request $request)
     {
@@ -110,7 +131,7 @@ class InfoBlockController extends Controller
         } elseif (
             gettype($request->input('id'))!='integer' ||
             gettype($request->input('name'))!='string' ||
-            gettype($request->input('active'))!='boolean'
+            gettype($request->input('active'))!='integer'
         ) {
             return response([
                 'code' => 400,
@@ -118,7 +139,7 @@ class InfoBlockController extends Controller
                     'message' => 'Неверные типы данных'
                 ]
             ], 400);
-        } elseif ($request->input('name')!='') {
+        } elseif ($request->input('name')=='') {
             return response([
                 'code' => 400,
                 'error' => [
@@ -126,14 +147,15 @@ class InfoBlockController extends Controller
                 ]
             ], 400);
         } else {
-            InfoBlock::find()->update([
+            InfoBlock::find($request->input('id'))->update([
                 'name'=>$request->input('name'),
                 'active'=>$request->input('active'),
             ]);
-            AdditionalFieldClass::updateAdditionalFields($request->input('additionalFieldsExist'));
+            AdditionalFieldClass::updateAdditionalFields($request->input('arAdditionalFields')['existFields']);
+            AdditionalFieldClass::saveAdditionalField($request->input('arAdditionalFields')['newFields'],$request->input('id'));
         }
         return response([
-            'result'=>'updated'
+            'result'=>'updated',
         ],200);
     }
 

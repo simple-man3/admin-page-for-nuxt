@@ -31,11 +31,11 @@
         @getInputValue="name"
       />
     </div>
-<!--    <list-additional-fields-->
-<!--      :ar-additional-fields-prop="arTInfoBlockData['additional_field']"-->
-<!--      :ar-type-field-prop="arTField"-->
-<!--      ref="ListAdditionalFields"-->
-<!--    />-->
+    <list-additional-fields
+      :ar-additional-fields-prop="arTInfoBlockData['additional_field']"
+      :ar-type-field-prop="arTField"
+      ref="ListAdditionalFields"
+    />
     <div class="wrapBtn">
       <div @click="save" class="btnSave">
         Сохранить
@@ -47,15 +47,12 @@
 <script lang="ts">
 import Vue from 'vue'
 import { AxiosResponse } from "axios";
+import * as _ from "lodash";
 
 import ListErrors from '/components/admin/formListErrors/ListErrors.vue'
 import Preloader from '/components/admin/preloader.vue'
 import ListAdditionalFields from '/components/admin/ListAdditionalFields.vue'
 import AnimationInput from '/components/admin/input/AnimationInput.vue'
-
-// toDo
-// Необходимо создать логику создания и изменения инфоблока и дополнительных полей
-// Необходимо убрать копирование по ссылке у arTInfoBlockData
 
 type TField={
   [index:number]:number,
@@ -70,9 +67,13 @@ type TAdditionalFields={
   name:string,
   active:boolean,
   symbol_code:string,
+  old_symbol_code?:string,
   needFill:boolean,
+  info_block_id?:number,
   type_fields_id:number,
-  newAdditionalField:boolean
+  newAdditionalField?:boolean,
+  created_at?:Date,
+  updated_at?:Date
 }[]
 type TUnique={
   unique:boolean,
@@ -92,6 +93,7 @@ type TInfoBlockData={
     name:string,
     needFill:boolean,
     symbol_code:string,
+    old_symbol_code?:string,
     type_fields_id:number,
     updated_at:Date
   }[],
@@ -145,7 +147,7 @@ export default Vue.extend({
       },
       arAdditionalFields: [] as TAdditionalFields,
       arTField:this.arTFieldProp as TField,
-      arTInfoBlockData: Object.assign({}, this.arTInfoBlockDataProp) as TInfoBlockData,
+      arTInfoBlockData: _.cloneDeep(this.arTInfoBlockDataProp) as TInfoBlockData,
       apiUrl:{
         save:'/api/admin/info-block/create-info-block',
         edit:'/api/admin/info-block/update'
@@ -163,11 +165,6 @@ export default Vue.extend({
     {
       return this.actionProp=='edit';
     },
-
-    // setArExistAdditionalFields:function (): [] | {}[]
-    // {
-    //   return Object.keys(this.arTInfoBlockData).length>0? this.arTInfoBlockData['additional_field']:[];
-    // },
   },
   methods:{
     async save ():Promise<void>
@@ -177,29 +174,39 @@ export default Vue.extend({
       // this.display.preloader=true;
       this.display.listErrors=false;
 
-      // console.clear();
-      // console.log(this.arAdditionalFields);
-      // console.log(this.arTInfoBlockDataProp['additional_field']);
-
       this.validate().then((result:boolean)=>{
-        // if (result) {
-          // this.$axios.post<AxiosResponse>(this.actionPropCheck?this.apiUrl['edit']:this.apiUrl['save'],{
-          //   nameInfoBlock:this.nameInfoBlock,
-          //   arAdditionalFields:this.arAdditionalFields,
-          // })
-          // .then((response:object)=>{
-          //   this.$router.push({
-          //     name:'admin-infoBlock'
-          //   });
-          // })
-          // .catch((error:any)=>{
-          //   console.error(error);
-          //
-          //   this.display.preloader=false;
-          //   this.error.length>0? this.display.listErrors=true:this.display.listErrors=false;
-          // })
-        // }
-        this.error.length>0? this.display.listErrors=true:this.display.listErrors=false;
+        if (result) {
+
+          let requestData=()=>{
+            return this.actionProp=='edit'?{
+              id:this.arTInfoBlockData['id'],
+              name:this.nameInfoBlock,
+              active:this.arTInfoBlockData['active']? 1:0,
+              arAdditionalFields: this.actionProp=='edit'? this.updateArrayAdditionalFields():this.arAdditionalFields,
+            }:{
+              name:this.nameInfoBlock,
+              arAdditionalFields:this.arAdditionalFields
+            };
+          };
+
+          this.$axios.post<AxiosResponse>(
+            this.actionPropCheck?this.apiUrl['edit']:this.apiUrl['save'],
+            requestData()
+          )
+          .then((response:object)=>{
+            this.$router.push({
+              name:'admin-infoBlock'
+            });
+          })
+          .catch((error:any)=>{
+            console.error(error);
+
+            this.display.preloader=false;
+          })
+        } else {
+          this.display.listErrors=true;
+          this.display.preloader=false;
+        }
       });
     },
 
@@ -232,6 +239,34 @@ export default Vue.extend({
       });
 
       return this.error.length==0;
+    },
+
+    updateArrayAdditionalFields:function ():object
+    {
+      let arResult:{
+        newFields:{}[],
+        existFields:{}[]
+      }={
+        newFields:[],
+        existFields:[]
+      };
+
+      _.cloneDeep(this.arAdditionalFields).forEach((item)=>{
+        delete item['old_symbol_code'];
+        delete item['created_at'];
+        delete item['updated_at'];
+        delete item['info_block_id'];
+
+        if (item['newAdditionalField']) {
+          delete item['newAdditionalField'];
+          arResult['newFields'].push(Object.assign(item));
+        } else {
+          delete item['newAdditionalField'];
+          arResult['existFields'].push(Object.assign(item));
+        }
+      });
+
+      return arResult;
     },
 
     name:function (data:{result:string}):void
@@ -278,7 +313,11 @@ export default Vue.extend({
       let arSymbolCode:string[]=[];
 
       this.arAdditionalFields.forEach((item,key)=>{
-        arSymbolCode.push(item.symbol_code);
+        if (!item['newAdditionalField'] && item['old_symbol_code']!=item['symbol_code']) {
+          arSymbolCode.push(item.symbol_code);
+        } else if (item['newAdditionalField']) {
+          arSymbolCode.push(item.symbol_code);
+        }
       });
 
       const result:any = await this.$axios.post<AxiosResponse>('/api/admin/info-block/check-unique-symbol-code',{

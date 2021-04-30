@@ -14,7 +14,7 @@ class AdditionalFieldClass
                 'active'=>true,
                 'symbol_code'=>$value['symbol_code'],
                 'type_fields_id'=>$value['type_fields_id'],
-                'info_block_id'=>$idInfoBlock['id'],
+                'info_block_id'=>$idInfoBlock,
                 'needFill'=>$value['needFill'],
             ]);
         }
@@ -66,11 +66,11 @@ class AdditionalFieldClass
     {
         foreach ($arData as $arItem) {
             AdditionalFields::find($arItem['id'])->update([
-                'name'=>$arData['name'],
-                'active'=>$arData['active'],
-                'needFill'=>$arData['needFill'],
-                'symbol_code'=>$arData['symbol_code'],
-                'type_fields_id'=>$arData['type_fields_id'],
+                'name'=>$arItem['name'],
+                'active'=>$arItem['active'],
+                'needFill'=>$arItem['needFill'],
+                'symbol_code'=>$arItem['symbol_code'],
+                'type_fields_id'=>$arItem['type_fields_id'],
             ]);
         }
     }
