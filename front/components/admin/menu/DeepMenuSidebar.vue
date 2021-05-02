@@ -8,15 +8,15 @@
         @mouseleave="disableHoverImg(index,arItem,'beforeImg')"
       >
         <img
-          v-if="arItem.beforeImgUrl!=null"
+          v-if="arItem.beforeImgUrl!==undefined"
           class="imgBefore"
           :src="arItem.beforeImgUrl"
           :style="setCssImg('beforeImg',arItem)"
           alt="img"
-          ref="beforeImg"
+          :ref="'beforeImg_'+index"
         >
         <img
-          v-if="arItem.afterImgUrl!=null && Object.keys(arItem.children).length"
+          v-if="arItem.afterImgUrl!=null && arItem.children!==undefined && Object.keys(arItem.children).length"
           class="imgAfter"
           :class="{openedImg:hiddenMenu[index].clicked}"
           :src="arItem.afterImgUrl"
@@ -25,7 +25,7 @@
           ref="afterImg"
         >
         <p
-          v-if="(arItem.route==null && arItem.nameRoute==null) || arItem.children.length"
+          v-if="isChildren(arItem) && ((arItem.route!==undefined && arItem.nameRoute!==undefined) || arItem.children.length)"
           :class="{
             selected:hiddenMenu[index].clicked,
           }"
@@ -36,32 +36,70 @@
         <nuxt-link
           v-else
           exact no-prefetch
-          :to="arItem.route==null? {name:arItem.nameRoute}:arItem.route"
+          :to="arItem.route!==undefined? {name:arItem.nameRoute}:arItem.route"
         >
           {{arItem.name}}
         </nuxt-link>
       </div>
-      <div
-        class="wrapSubMenu"
-        v-if="arItem.children && Object.keys(arItem.children).length"
-        :style="{height:hiddenMenu[index].height+'px'}"
-      >
-        <div class="wrapInsideSubMenu" ref="blockCustom">
-          <DeepMenuSidebar
-            :ar-menu-links-prop="arItem.children"
-            :is-child-prop="true"
-            :parent-id-prop="index"
-            @displayParent="displayParent"
-            @closeParent="closeParent"
-          />
-        </div>
-      </div>
+<!--      <div-->
+<!--        class="wrapSubMenu"-->
+<!--        v-if="isChildren(arItem) && Object.keys(arItem.children).length"-->
+<!--        :style="{height:hiddenMenu[index].height+'px'}"-->
+<!--      >-->
+<!--        <div class="wrapInsideSubMenu" ref="blockCustom">-->
+<!--          <DeepMenuSidebar-->
+<!--            :ar-menu-links-prop="arItem.children"-->
+<!--            :is-child-prop="true"-->
+<!--            :parent-id-prop="index"-->
+<!--            @displayParent="displayParent"-->
+<!--            @closeParent="closeParent"-->
+<!--          />-->
+<!--        </div>-->
+<!--      </div>-->
     </li>
   </ul>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+type TMenuLinks={
+  [index:number]:number,
+  id?:number | string, // ID меню
+  name:string, // название пункта меню
+  route:string | null, // url пункта меню
+  nameRoute:string | null, // название router
+  beforeImgUrl?:string | null, // путь до картикни для отображени перед названием меню
+  afterImgUrl?:string | null, // путь до картикни для отображени отображеня картинки после названием меню
+  styleImg?:{ // различные стили для картинок
+    beforeImg?:{ // стили для картинки отображаеюся перед название меню
+      width:string | null, // ширина картинки. Пример: 25px
+      height:string | null,// высота картинки. Пример: 25px
+      transition:string | null, // время анимации. Пример: 1s
+      hover?:{ // свойство при наведении на картинку
+        imgUrl:string | null, // путь до новой картнки
+        rotate:number | null, // угол поворота картинки. Пример: 25
+      }
+    },
+    afterImg?:{ // стили для картинки отображаеюся перед название меню
+      width:string | null, // ширина картинки. Пример: 25px
+      height:string | null, // высота картинки. Пример: 25px
+      transition:string | null, // время анимации. Пример: 1s
+      hover:{ // свойство при наведении на картинку
+        imgUrl:string | null, // путь до новой картнки
+        rotate:number | null, // угол поворота картинки. Пример: 25
+      }
+    },
+  },
+  children?:TMenuLinks // меню уходящее в глубину
+}[]
+type THiddenMenu={
+  [name:string]:any,
+  height:number,
+  clicked:boolean
+}[]
+
+export default Vue.extend({
   name:'DeepMenuSidebar',
   props:{
     arMenuLinksProp:{
@@ -81,13 +119,10 @@ export default {
   data:function ()
   {
     return{
-      arMenu:this.arMenuLinksProp,
+      arMenu:this.arMenuLinksProp as TMenuLinks,
       isChild:this.isChildProp,
-
-      hiddenMenu:[],
-
+      hiddenMenu:[] as THiddenMenu,
       parentId:this.parentIdProp,
-
       hoverCss:[
         {
           beforeImg:{
@@ -112,18 +147,19 @@ export default {
      * Отображает дочерние компоненты
      * @index - индекс массива
      */
-    displayHiddenMenu:function (index)
+    displayHiddenMenu:function (index:number):void
     {
-      if (!this.hiddenMenu[index].clicked){
+      if (!this.hiddenMenu[index].clicked && this.arMenu!==undefined){
         //Если у нажатого элемента есть дочерние элементы
-        if (this.arMenu[index].children.length) {
-          this.hiddenMenu[index].height=this.$refs['blockCustom'][index].clientHeight;
+        // if (this.arMenu[index].children!==undefined && this.arMenu[index].children.length) {
+        if (this.arMenu[index].children!==undefined) {
+          this.hiddenMenu[index].height=(this.$refs['blockCustom'] as any)[index].clientHeight;
           this.hiddenMenu[index].clicked=true;
 
           // если блок сам дочерний элемент
           if (this.isChild) {
             this.$emit('displayParent',{
-              height: this.$refs['blockCustom'][index].clientHeight,
+              height: (this.$refs['blockCustom'] as any)[index].clientHeight,
               parentId:this.parentId
             })
           }
@@ -132,7 +168,7 @@ export default {
         // если блок сам дочерний элемент
         if (this.isChild) {
           this.$emit('closeParent',{
-            height: this.$refs['blockCustom'][index].clientHeight,
+            height: (this.$refs['blockCustom'] as any)[index].clientHeight,
             parentId:this.parentId
           })
         }
@@ -145,12 +181,12 @@ export default {
     /**
      * Рекурсивно изменяет высоту родительского блока
      */
-    displayParent:function (data)
+    displayParent:function (data:{[name:string]:any}):void
     {
       if (data.height!=null) {
-        this.hiddenMenu[data.parentId].height = this.$refs['blockCustom'][data.parentId].clientHeight + data.height;
+        this.hiddenMenu[data.parentId].height = (this.$refs['blockCustom'] as any)[data.parentId].clientHeight + data.height;
       } else {
-        this.hiddenMenu[data.parentId].height=this.$refs['blockCustom'][data.parentId].clientHeight;
+        this.hiddenMenu[data.parentId].height=(this.$refs['blockCustom'] as any)[data.parentId].clientHeight;
         this.hiddenMenu[data.parentId].clicked=true;
       }
       this.$emit('displayParent',{
@@ -162,9 +198,9 @@ export default {
     /**
      * Рекурсивно закрывает родительский компонент
      */
-    closeParent:function (data)
+    closeParent:function (data:{[name:string]:any}):void
     {
-      this.hiddenMenu[data.parentId].height=this.$refs['blockCustom'][data.parentId].clientHeight-data.height;
+      this.hiddenMenu[data.parentId].height=(this.$refs['blockCustom'] as any)[data.parentId].clientHeight-data.height;
 
       this.$emit('closeParent',{
         height: data.height,
@@ -172,26 +208,32 @@ export default {
       });
     },
 
-    setNewKey:function ()
+    setNewKey:function ():void
     {
-      for (let arItem in this.arMenu) {
+      this.arMenu.forEach((item)=>{
         this.hiddenMenu.push({
           height:0,
           clicked:false
         })
-      }
+      });
     },
 
     /**
      * Устанавливает свойство в тег img
+     * @param beforeOrAfter => ключ объекта, находясь в объекте styleImg
+     * @param arResult => объект
      */
-    setCssImg:function (beforeOrAfter,arResult)
+    setCssImg:function (beforeOrAfter:string, arResult:{[name:string]:any}):{}
     {
-      return {
-        width:arResult.styleImg[beforeOrAfter].width,
-        height:arResult.styleImg[beforeOrAfter].height,
-        transition:arResult.styleImg[beforeOrAfter].transition!=null && arResult.styleImg[beforeOrAfter].transition? arResult.styleImg[beforeOrAfter].transition:'',
-      };
+      if (arResult['styleImg']!==undefined && arResult['styleImg'][beforeOrAfter]!==undefined) {
+        return {
+          width:arResult.styleImg[beforeOrAfter].width,
+          height:arResult.styleImg[beforeOrAfter].height,
+          transition:arResult.styleImg[beforeOrAfter].transition!=null && arResult.styleImg[beforeOrAfter].transition? arResult.styleImg[beforeOrAfter].transition:'',
+        };
+      } else {
+        return {};
+      }
     },
 
     /**
@@ -200,29 +242,39 @@ export default {
      * @param arResult - массив
      * @param beforeOrAfterImg
      */
-    activeHoverImg:function (index, arResult, beforeOrAfterImg)
+    activeHoverImg:function (index:number, arResult:{[name:string]:any}, beforeOrAfterImg:string):void
     {
       // Если вообще есть необходимые ключи и они не пустые
-      if (
-        (arResult.styleImg.beforeImg.hover && Object.keys(arResult.styleImg.beforeImg.hover).length) ||
-        (arResult.styleImg.afterImg.hover && Object.keys(arResult.styleImg.afterImg.hover).length)
-      ) {
-        if (arResult.styleImg[beforeOrAfterImg].hover.imgUrl!=null) {
-          this.$refs[beforeOrAfterImg][index].src=arResult.styleImg[beforeOrAfterImg].hover.imgUrl
+      if (arResult['beforeImgUrl']!==undefined && arResult['styleImg']!==undefined) {
+        if (
+          arResult['styleImg'][beforeOrAfterImg]!==undefined &&
+          arResult['styleImg'][beforeOrAfterImg]['hover']!==undefined
+        ) {
+          (this.$refs[beforeOrAfterImg+'_'+index] as any)[0].src=arResult.styleImg[beforeOrAfterImg].hover.imgUrl
         }
-        if (arResult.styleImg[beforeOrAfterImg].hover.rotate!=null) {
-          this.$refs[beforeOrAfterImg][index].style.transform=`rotate(${arResult.styleImg[beforeOrAfterImg].hover.rotate}deg)`;
+        if (
+          arResult.styleImg[beforeOrAfterImg].hover!==undefined &&
+          arResult.styleImg[beforeOrAfterImg].hover.rotate!==undefined
+        ) {
+          (this.$refs[beforeOrAfterImg+'_'+index] as any)[0].style.transform=`rotate(${arResult.styleImg[beforeOrAfterImg].hover.rotate}deg)`;
         }
       }
     },
 
-    disableHoverImg:function (index, arResult, beforeOrAfterImg)
+    disableHoverImg:function (index:number, arResult:{[name:string]:any}, beforeOrAfterImg:string):void
     {
-      this.$refs[beforeOrAfterImg][index].src=beforeOrAfterImg=='beforeImg'? arResult.beforeImgUrl:arResult.afterImgUrl;
-      this.$refs[beforeOrAfterImg][index].style.transform='';
+      if (arResult['beforeImgUrl']!==undefined && arResult['styleImg']!==undefined) {
+        (this.$refs[beforeOrAfterImg+'_'+index] as any)[0].src=arResult['beforeImgUrl'];
+        (this.$refs[beforeOrAfterImg+'_'+index] as any)[0].style.transform=``;
+      }
     },
+
+    isChildren:function (arItem:{[name:string]:any}):boolean
+    {
+      return arItem['children']!==undefined;
+    }
   }
-}
+})
 </script>
 
 <style>
@@ -303,45 +355,3 @@ export default {
   transform: rotate(-180deg);
 }
 </style>
-
-<!--Пример массива:
-arMenuLinks:[
-  {
-    name:'Контент',
-    route:null,
-    nameRoute:null,
-    beforeImgUrl:'/img/admin/landing-page.svg',
-    afterImgUrl:'/img/admin/img.png',
-    sizeImg:{
-      width:'15px',
-      height:'15px'
-    },
-    children:[
-      {
-        name:'Контент 2',
-        route:null,
-        nameRoute:null,
-        beforeImgUrl:'/img/admin/landing-page.svg',
-        afterImgUrl:'/img/admin/img.png',
-        sizeImg:{
-          width:'15px',
-          height:'15px'
-        },
-        children:[]
-      },
-      {
-        name:'Контент 3',
-        route:null,
-        nameRoute:null,
-        beforeImgUrl:'/img/admin/landing-page.svg',
-        afterImgUrl:'/img/admin/img.png',
-        sizeImg:{
-          width:'15px',
-          height:'15px'
-        },
-        children:[]
-      },
-    ]
-  },
-],
--->

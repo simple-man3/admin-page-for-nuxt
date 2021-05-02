@@ -18,12 +18,14 @@
 import Vue from 'vue'
 import auth from '@nuxtjs/auth-next'
 
-type MenuLinksInterface={
+type TMenuLinks={
+  [index:number]:number,
+  id?:number, // ID меню
   name:string, // название пункта меню
   route:string | null, // url пункта меню
   nameRoute:string | null, // название router
-  beforeImgUrl:string | null, // путь до картикни для отображени перед названием меню
-  afterImgUrl:string | null, // путь до картикни для отображени отображеня картинки после названием меню
+  beforeImgUrl?:string, // путь до картикни для отображени перед названием меню
+  afterImgUrl?:string, // путь до картикни для отображени отображеня картинки после названием меню
   styleImg?:{ // различные стили для картинок
     beforeImg?:{ // стили для картинки отображаеюся перед название меню
       width:string | null, // ширина картинки. Пример: 25px
@@ -39,20 +41,25 @@ type MenuLinksInterface={
       height:string | null, // высота картинки. Пример: 25px
       transition:string | null, // время анимации. Пример: 1s
       hover:{ // свойство при наведении на картинку
-        imgUrl:string | null, // путь до новой картнки
-        rotate:number | null, // угол поворота картинки. Пример: 25
+        imgUrl:string, // путь до новой картнки
+        rotate:number, // угол поворота картинки. Пример: 25
       }
     },
   },
-  children?:MenuLinksInterface[] // меню уходящее в глубину
+  children?:TMenuLinks // меню уходящее в глубину
 }[]
 
 export default Vue.extend({
+  async fetch(){
+    const result=await this.$axios.$post('/api/admin/info-block/get-all-info-block').catch(error=>console.error());
+    this.addPointsMenuInfoBlock();
+  },
   data:function ()
   {
     return{
       arMenuLinks:[
         {
+          id:1,
           name:'Главное',
           route:null,
           nameRoute:null,
@@ -77,36 +84,33 @@ export default Vue.extend({
               }
             },
           },
-          children:[]
         },
         {
+          id:2,
           name:'Контент',
           route:null,
-          nameRoute:null,
+          nameRoute:'admin-content',
           beforeImgUrl:'/img/admin/content.svg',
-          afterImgUrl:'/img/admin/sort-down.svg',
           styleImg:{
             beforeImg:{
               width:'15px',
               height:'15px',
               hover:{
                 imgUrl:'/img/admin/content-active.svg',
-                rotate:null,
               }
             },
-            afterImg:{
-              width:'15px',
-              height:'15px',
-              transition:null,
-              hover:{
-                imgUrl:'/img/admin/content-active.svg',
-                rotate:50,
-              }
-            },
+          //   afterImg:{
+          //     width:'15px',
+          //     height:'15px',
+          //     transition:null,
+          //     hover:{
+          //       imgUrl:'/img/admin/content-active.svg',
+          //     }
+          //   },
           },
-          children:[]
         },
         {
+          id:3,
           name:'Инфоблоки',
           route:null,
           nameRoute:'admin-infoBlock',
@@ -132,9 +136,9 @@ export default Vue.extend({
               }
             },
           },
-          children:[]
         },
         {
+          id:4,
           name:'Политика безопасности',
           route:null,
           nameRoute:null,
@@ -160,9 +164,9 @@ export default Vue.extend({
               }
             },
           },
-          children:[]
         },
         {
+          id:5,
           name:'Настроки',
           route:null,
           nameRoute:null,
@@ -188,14 +192,39 @@ export default Vue.extend({
               }
             },
           },
-          children:[]
         }
-      ],
+      ] as TMenuLinks,
     }
   },
   components:{
     DeepMenuSidebar:()=>import('@/components/admin/menu/DeepMenuSidebar.vue'),
     NavbarAdminPage:()=>import('@/components/admin/NavbarAdminPage.vue')
+  },
+  methods:{
+    addPointsMenuInfoBlock:function ()
+    {
+      this.arMenuLinks.forEach((item,index)=>{
+        if (item['id']==2) {
+          if (item['children']===undefined) {
+            this.$set(
+              this.arMenuLinks[index],
+              'children',
+              {
+                name:'qwerty',
+                route:'qwqw',
+                nameRoute:'qwqwq'
+              }
+            )
+          } else {
+            item['children'].push({
+              name:'qwerty',
+              route:'qwqw',
+              nameRoute:'qwqwq'
+            });
+          }
+        }
+      });
+    }
   }
 })
 </script>

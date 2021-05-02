@@ -55,10 +55,15 @@ class InfoBlockController extends Controller
         ],200);
     }
 
+    /**
+     * @param Request $request - входят следующие атрибуты:
+     * usePaginate => boolean. Обязательный параметр. Если true, то используется пагинация
+     * count => количество постов на станицу
+     */
     public function getAllInfoBlocks(Request $request)
     {
         return response([
-            'result'=>InfoBlock::paginate(7),
+            'result'=>$request->input('usePaginate')? InfoBlock::paginate($request->input('count')):InfoBlock::all(),
         ],200);
     }
 

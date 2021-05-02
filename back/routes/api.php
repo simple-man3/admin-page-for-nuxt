@@ -9,7 +9,6 @@ Route::group(['middleware'=>'auth:api'],function (){
 
     //region Инфоблок
     Route::prefix('admin/info-block')->group(function (){
-
         // Создаёт инфоблок
         Route::post('create-info-block',[InfoBlockController::class,'save']);
 
@@ -33,6 +32,12 @@ Route::group(['middleware'=>'auth:api'],function (){
 
         // Проверяет выбранное поле
         Route::post('delete-current-field',[InfoBlockController::class,'deleteCurrentField']);
+    });
+    //endregion
+
+    //region Контент
+    Route::prefix('admin/content')->group(function (){
+//        Route::get('get-all-in');
     });
     //endregion
 });
