@@ -70,7 +70,7 @@
       :ar-checked-prop="getAllCheckedCheckbox"
     />
     <pagination
-      v-if="!isEmptyInfoBlock"
+      v-if="!isEmptyInfoBlock && checkCountPosts"
       :pagination-prop="arPagination"
       :offset-prop="5"
       @selectedPage="selectedPage"
@@ -103,7 +103,11 @@ export default Vue.extend({
   },
   async asyncData({$axios,params})
   {
-    const arInfoBlocks=await $axios.$post('/api/admin/info-block/get-all-info-block?page='+params.index)
+    const countPost=20;
+    const arInfoBlocks=await $axios.$post('/api/admin/info-block/get-all-info-block?page='+params.index,{
+      usePaginate:true,
+      count:countPost
+    })
     .catch(error=>console.error(error));
 
     return {
@@ -117,7 +121,7 @@ export default Vue.extend({
       arInfoBlocks:[] as InfoBlocksType,
       checked:false,
       mainCheckBox:false,
-      arPagination:{}
+      arPagination:{} as {[name:string]:any}
     }
   },
   components:{
@@ -141,6 +145,11 @@ export default Vue.extend({
     isEmptyInfoBlock:function ():boolean
     {
       return this.arInfoBlocks.length<1;
+    },
+
+    checkCountPosts:function ():boolean
+    {
+      return this.arPagination['last_page']>1;
     }
   },
   created:function()
