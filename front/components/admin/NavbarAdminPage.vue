@@ -39,12 +39,18 @@ export default Vue.extend({
   computed:{
     ...mapGetters(['authCheck','authUser']),
   },
+  mounted:function ()
+  {
+    console.log(this.authUser);
+    console.log(this.authCheck);
+    console.log(this.$auth);
+  },
   methods:{
     async logout ()
     {
       this.$auth.logout();
     }
-  }
+  },
 })
 </script>
 

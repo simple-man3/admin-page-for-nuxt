@@ -33,10 +33,14 @@
         >
           {{arItem.name}}
         </p>
+        <p v-else-if="arItem.route===undefined && arItem.nameRoute===undefined">
+          {{arItem.name}}
+        </p>
         <nuxt-link
           v-else
           exact no-prefetch
-          :to="arItem.route!==undefined? {name:arItem.nameRoute}:arItem.route"
+          active-class="active"
+          :to="{name:arItem.nameRoute}"
         >
           {{arItem.name}}
         </nuxt-link>
@@ -272,7 +276,7 @@ export default Vue.extend({
     isChildren:function (arItem:{[name:string]:any}):boolean
     {
       return arItem['children']!==undefined;
-    }
+    },
   }
 })
 </script>
@@ -353,5 +357,9 @@ export default Vue.extend({
 
 .openedImg{
   transform: rotate(-180deg);
+}
+
+.active{
+  color: white!important;
 }
 </style>

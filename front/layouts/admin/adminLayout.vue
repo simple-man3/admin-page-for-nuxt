@@ -20,10 +20,10 @@ import auth from '@nuxtjs/auth-next'
 
 type TMenuLinks={
   [index:number]:number,
-  id?:number, // ID меню
+  id:number, // ID меню
   name:string, // название пункта меню
-  route:string | null, // url пункта меню
-  nameRoute:string | null, // название router
+  route?:string, // url пункта меню
+  nameRoute?:string, // название router
   beforeImgUrl?:string, // путь до картикни для отображени перед названием меню
   afterImgUrl?:string, // путь до картикни для отображени отображеня картинки после названием меню
   styleImg?:{ // различные стили для картинок
@@ -52,7 +52,7 @@ type TMenuLinks={
 export default Vue.extend({
   async fetch(){
     const result=await this.$axios.$post('/api/admin/info-block/get-all-info-block').catch(error=>console.error());
-    this.addPointsMenuInfoBlock();
+    this.addPointsMenuContent();
   },
   data:function ()
   {
@@ -61,8 +61,6 @@ export default Vue.extend({
         {
           id:1,
           name:'Главное',
-          route:null,
-          nameRoute:null,
           beforeImgUrl:'/img/admin/content.svg',
           afterImgUrl:'/img/admin/sort-down.svg',
           styleImg:{
@@ -88,8 +86,6 @@ export default Vue.extend({
         {
           id:2,
           name:'Контент',
-          route:null,
-          nameRoute:'admin-content',
           beforeImgUrl:'/img/admin/content.svg',
           styleImg:{
             beforeImg:{
@@ -112,7 +108,6 @@ export default Vue.extend({
         {
           id:3,
           name:'Инфоблоки',
-          route:null,
           nameRoute:'admin-infoBlock',
           beforeImgUrl:'/img/admin/content.svg',
           afterImgUrl:'/img/admin/sort-down.svg',
@@ -140,8 +135,6 @@ export default Vue.extend({
         {
           id:4,
           name:'Политика безопасности',
-          route:null,
-          nameRoute:null,
           beforeImgUrl:'/img/admin/content.svg',
           afterImgUrl:'/img/admin/sort-down.svg',
           styleImg:{
@@ -168,8 +161,6 @@ export default Vue.extend({
         {
           id:5,
           name:'Настроки',
-          route:null,
-          nameRoute:null,
           beforeImgUrl:'/img/admin/content.svg',
           afterImgUrl:'/img/admin/sort-down.svg',
           styleImg:{
@@ -201,7 +192,7 @@ export default Vue.extend({
     NavbarAdminPage:()=>import('@/components/admin/NavbarAdminPage.vue')
   },
   methods:{
-    addPointsMenuInfoBlock:function ()
+    addPointsMenuContent:function ()
     {
       this.arMenuLinks.forEach((item,index)=>{
         if (item['id']==2) {
